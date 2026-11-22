@@ -5,6 +5,7 @@ import { SkillCalibration } from "./components/SkillCalibration.tsx";
 import { SongLibrary } from "./components/SongLibrary.tsx";
 import { SongPlayer } from "./components/SongPlayer.tsx";
 import { useMidi } from "./hooks/useMidi.ts";
+import { useWakeLock } from "./hooks/useWakeLock.ts";
 import { useAppStore } from "./store/appStore.ts";
 
 export function App() {
@@ -14,6 +15,8 @@ export function App() {
   const profileLoaded = useAppStore((s) => s.profileLoaded);
   const currentStage = useAppStore((s) => s.currentStage);
   const calibrationSubStep = useAppStore((s) => s.calibrationSubStep);
+
+  useWakeLock(currentStage === "player" || currentStage === "calibration");
 
   useEffect(() => {
     void bootstrap();

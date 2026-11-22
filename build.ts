@@ -1,8 +1,9 @@
 import tailwind from "bun-plugin-tailwind";
-import { rmSync, existsSync, readdirSync } from "node:fs";
+import { cpSync, existsSync, readdirSync, rmSync } from "node:fs";
 import { join } from "node:path";
 
 const publicDir = join(process.cwd(), "public");
+const pwaDir = join(process.cwd(), "src", "pwa");
 
 // Clean previously built static assets in public/ while preserving public/songs/
 if (existsSync(publicDir)) {
@@ -27,6 +28,10 @@ if (!result.success) {
     console.error(log);
   }
   process.exit(1);
+}
+
+if (existsSync(pwaDir)) {
+  cpSync(pwaDir, publicDir, { recursive: true });
 }
 
 console.log(`Built ${result.outputs.length} production files into public/:`);

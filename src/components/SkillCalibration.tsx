@@ -1,5 +1,9 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useAudioSynth } from "../hooks/useAudioSynth.ts";
+import {
+  getCalibrationPieceDurationSec,
+  MIN_CALIBRATION_DURATION_SEC,
+} from "../shared/calibrationScoring.ts";
 import { computeAutoZoomRange, fitSongToKeyboardRange } from "../shared/keyboardRange.ts";
 import { loadParsedSong } from "../shared/midiLoader.ts";
 import type {
@@ -11,8 +15,6 @@ import type {
 import { CalibrationSupersededError, subscribeMidiEvents, useAppStore } from "../store/appStore.ts";
 import { FallingNotesCanvas } from "./FallingNotesCanvas.tsx";
 import { PianoKeyboard } from "./PianoKeyboard.tsx";
-
-const CALIBRATION_DURATION_SEC = 15;
 
 type PiecePhase = "ready" | "armed" | "recording" | "submitting" | "results";
 
@@ -104,13 +106,11 @@ export function SkillCalibration() {
       stopAll();
       setActiveSongNotes(new Set());
 
-      const expectedNotes = (parsedPiece?.notes ?? [])
-        .filter((n) => n.time <= CALIBRATION_DURATION_SEC)
-        .map((n) => ({
-          midi: n.midi,
-          timeMs: Math.round(n.time * 1000),
-          durationMs: Math.round(n.duration * 1000),
-        }));
+      const expectedNotes = (parsedPiece?.notes ?? []).map((n) => ({
+        midi: n.midi,
+        timeMs: Math.round(n.time * 1000),
+        durationMs: Math.round(n.duration * 1000),
+      }));
 
       const nextAttempts = attemptsRef.current.slice(0, pieceIdx);
       nextAttempts[pieceIdx] = {
@@ -178,14 +178,11 @@ export function SkillCalibration() {
     });
   }, [phase, unlockAudio]);
 
-  // Playback & 15s countdown animation loop during "recording"
+  // Playback & countdown animation loop during "recording"
   useEffect(() => {
     if (phase !== "recording" || !parsedPiece) return;
 
-    const maxDuration = Math.min(
-      CALIBRATION_DURATION_SEC,
-      Math.max(8, parsedPiece.durationSec + 0.5),
-    );
+    const maxDuration = getCalibrationPieceDurationSec(parsedPiece.durationSec);
     const notes = parsedPiece.notes;
 
     const tick = () => {
@@ -238,7 +235,10 @@ export function SkillCalibration() {
     [currentMeta, profile.keyboardRange],
   );
 
-  const remainingSec = Math.max(0, Math.ceil(CALIBRATION_DURATION_SEC - currentTimeSec));
+  const pieceDurationSec = parsedPiece
+    ? getCalibrationPieceDurationSec(parsedPiece.durationSec)
+    : MIN_CALIBRATION_DURATION_SEC;
+  const remainingSec = Math.max(0, Math.ceil(pieceDurationSec - currentTimeSec));
 
   if (phase === "results" && lastCalibrationResult) {
     return (

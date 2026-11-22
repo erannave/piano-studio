@@ -2,6 +2,17 @@ import type { CalibrationPieceAttempt, PieceScoreSummary } from "./types.ts";
 
 const MATCH_WINDOW_MS = 450;
 
+export const MIN_CALIBRATION_DURATION_SEC = 8;
+export const CALIBRATION_END_BUFFER_SEC = 0.75;
+
+/**
+ * Computes the recording duration for a Calibration Piece so the learner can play
+ * every note to the end of the piece with a short grace buffer after the final note.
+ */
+export function getCalibrationPieceDurationSec(pieceDurationSec: number): number {
+  return Math.max(MIN_CALIBRATION_DURATION_SEC, pieceDurationSec + CALIBRATION_END_BUFFER_SEC);
+}
+
 export function scoreCalibrationPiece(attempt: CalibrationPieceAttempt): PieceScoreSummary {
   const expectedCount = attempt.expectedNotes.length;
 

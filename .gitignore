@@ -6,4 +6,7 @@ public/index.html
 public/*.js
 public/*.css
 public/*.map
+public/icons/
+public/icon-*
+public/manifest*.webmanifest
 *.mp4

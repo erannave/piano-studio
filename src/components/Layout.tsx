@@ -1,5 +1,6 @@
 import { useState } from "react";
 import type { ReactNode } from "react";
+import { usePwaInstall } from "../hooks/usePwaInstall.ts";
 import { midiToNoteName } from "../shared/keyboardRange.ts";
 import { useAppStore } from "../store/appStore.ts";
 
@@ -25,6 +26,7 @@ export function Layout({ children }: LayoutProps) {
 
   const [showLevelPicker, setShowLevelPicker] = useState(false);
   const [showMidiPicker, setShowMidiPicker] = useState(false);
+  const { canInstall, promptInstall } = usePwaInstall();
 
   const midiBadge = (() => {
     switch (midiStatus) {
@@ -66,7 +68,7 @@ export function Layout({ children }: LayoutProps) {
   )}`;
 
   return (
-    <div className="h-screen w-screen overflow-hidden flex flex-col bg-slate-950 text-slate-100">
+    <div className="h-dvh w-dvw overflow-hidden flex flex-col bg-slate-950 text-slate-100">
       {/* Top Bar optimized for 1340x800 landscape tablet */}
       <header className="h-16 shrink-0 px-5 border-b border-slate-800 bg-slate-900/90 backdrop-blur flex items-center justify-between gap-4 z-30">
         <div className="flex items-center gap-3 min-w-0">
@@ -167,6 +169,19 @@ export function Layout({ children }: LayoutProps) {
         </div>
 
         <div className="flex items-center gap-3 shrink-0">
+          {/* PWA Install button (shown only when browser signals installability) */}
+          {canInstall && (
+            <button
+              type="button"
+              onClick={() => void promptInstall()}
+              title="Install Piano Studio as a fullscreen app"
+              className="min-h-[44px] px-3.5 rounded-xl border border-sky-500/40 bg-sky-500/15 hover:bg-sky-500/25 text-sky-200 text-sm font-semibold flex items-center gap-1.5 transition cursor-pointer"
+            >
+              <span>⬇</span>
+              <span>Install App</span>
+            </button>
+          )}
+
           {/* Keyboard Range button */}
           <button
             type="button"

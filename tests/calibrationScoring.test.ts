@@ -1,5 +1,10 @@
 import { describe, expect, test } from "bun:test";
-import { evaluateCalibration } from "../src/shared/calibrationScoring.ts";
+import {
+  CALIBRATION_END_BUFFER_SEC,
+  evaluateCalibration,
+  getCalibrationPieceDurationSec,
+  MIN_CALIBRATION_DURATION_SEC,
+} from "../src/shared/calibrationScoring.ts";
 import type {
   CalibrationPieceAttempt,
   ExpectedNote,
@@ -110,5 +115,21 @@ describe("calibrationScoring", () => {
     const result = evaluateCalibration(attempts);
     expect(result.skillLevel).toBeGreaterThanOrEqual(9);
     expect(result.skillLevel).toBeLessThanOrEqual(10);
+  });
+
+  test("getCalibrationPieceDurationSec covers pieces longer than 15s without cutting off the end", () => {
+    expect(getCalibrationPieceDurationSec(17.06)).toBeCloseTo(
+      17.06 + CALIBRATION_END_BUFFER_SEC,
+      5,
+    );
+    expect(getCalibrationPieceDurationSec(15.67)).toBeCloseTo(
+      15.67 + CALIBRATION_END_BUFFER_SEC,
+      5,
+    );
+    expect(getCalibrationPieceDurationSec(12.12)).toBeCloseTo(
+      12.12 + CALIBRATION_END_BUFFER_SEC,
+      5,
+    );
+    expect(getCalibrationPieceDurationSec(4)).toBe(MIN_CALIBRATION_DURATION_SEC);
   });
 });

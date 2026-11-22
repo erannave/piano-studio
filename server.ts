@@ -9,6 +9,7 @@ import type { CalibrationPieceAttempt, CalibrationResult } from "./src/shared/ty
 const isProd = process.env.NODE_ENV === "production";
 const port = Number(process.env.PORT) || 3000;
 const publicDir = resolve(process.cwd(), "public");
+const pwaDir = resolve(process.cwd(), "src", "pwa");
 const songsDir = join(publicDir, "songs");
 
 const db = new PianoDatabase(process.env.DB_PATH || "data/piano.db");
@@ -20,7 +21,11 @@ function json(data: unknown, status = 200): Response {
   });
 }
 
-function serveSafeFile(baseDir: string, relPath: string): Response {
+function serveSafeFile(
+  baseDir: string,
+  relPath: string,
+  extraHeaders?: Record<string, string>,
+): Response {
   const decoded = decodeURIComponent(relPath).replace(/^\/+/, "");
   const fullPath = resolve(baseDir, decoded);
   if (!fullPath.startsWith(baseDir + "/") && fullPath !== baseDir) {
@@ -29,7 +34,15 @@ function serveSafeFile(baseDir: string, relPath: string): Response {
   if (!existsSync(fullPath)) {
     return new Response("Not Found", { status: 404 });
   }
-  return new Response(Bun.file(fullPath));
+  const file = Bun.file(fullPath);
+  const headers: Record<string, string> = { ...extraHeaders };
+  if (fullPath.endsWith(".webmanifest")) {
+    headers["content-type"] = "application/manifest+json; charset=utf-8";
+  } else if (fullPath.endsWith("/sw.js")) {
+    headers["content-type"] = "application/javascript; charset=utf-8";
+    headers["cache-control"] = "no-cache";
+  }
+  return Object.keys(headers).length > 0 ? new Response(file, { headers }) : new Response(file);
 }
 
 const apiRoutes = {
@@ -141,6 +154,15 @@ const server = Bun.serve({
     // Serve generated MIDI songs and catalog from public/songs/
     if (url.pathname.startsWith("/songs/")) {
       return serveSafeFile(songsDir, url.pathname.slice("/songs/".length));
+    }
+
+    // Serve PWA manifest, service worker, and icons in both dev and prod modes
+    if (
+      url.pathname === "/manifest.webmanifest" ||
+      url.pathname === "/sw.js" ||
+      url.pathname.startsWith("/icons/")
+    ) {
+      return serveSafeFile(isProd ? publicDir : pwaDir, url.pathname.slice(1));
     }
 
     // In production, serve static built files from public/
