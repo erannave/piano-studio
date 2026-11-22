@@ -1,0 +1,652 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+# Verification harness for Piano Studio (piano-learning-app).
+# Manages isolated server instances, read-only doctor checks, Playwright CLI
+# browser driving, virtual Web MIDI boundary injection, SQLite inspection,
+# and safe PID-scoped cleanup that preserves proof artifacts.
+
+SCRIPT_DIR="$(cd -P "$(dirname "${BASH_SOURCE[0]}")" && pwd -P)"
+REPO_ROOT="$(cd -P "$SCRIPT_DIR/../../../.." && pwd -P)"
+CALLER_CWD="$(pwd)"
+
+RUN_ID="${PIANO_VERIFY_RUN_ID:-default}"
+COMMAND=""
+ARGS=()
+
+usage() {
+  cat <<'EOF'
+Usage: piano-verify [--run-id <id>] <command> [args...]
+
+Commands:
+  launch [--port <port>] [--prod] [--evidence-dir <dir>]
+      Start an isolated Piano Studio instance (ephemeral port, disposable SQLite DB,
+      AI_ENDPOINT=off) and open a 1340x800 Playwright browser session.
+  doctor
+      Read-only health check: server PID, port ownership, isolated DB, HTTP/API
+      readiness, Song Catalog integrity, and live browser session.
+  click <role> <name> [--exact]
+      Click a UI element by ARIA role and accessible name.
+  set-range <aria-label> <value>
+      Set a slider (<input type="range">) by its accessible label.
+  wait-text <text> [--timeout <ms>]
+      Wait until visible text appears on the page (default timeout: 10000ms).
+  wait-role <role> <name> [--exact] [--timeout <ms>]
+      Wait until an element matching ARIA role and accessible name is visible.
+  snapshot [output-file]
+      Capture an ARIA snapshot (prints to stdout or saves to output-file).
+  screenshot <output-file>
+      Capture a PNG screenshot of the current viewport.
+  console [min-level]
+      Show browser console messages (e.g. error, warning, info).
+  db
+      Read-only JSON dump of learner_profile and calibration_history from the
+      isolated SQLite database.
+  api <METHOD> <PATH> [JSON_BODY]
+      Send an HTTP request to the running verification server.
+  virtual-midi enable [device-name]
+      Attach a virtual Web MIDI port at the browser navigator.requestMIDIAccess
+      boundary and reload the page so useMidi connects natively.
+  virtual-midi note <midi> [velocity] [duration-ms]
+      Send a noteOn/noteOff pair through the attached virtual Web MIDI port.
+  browser <playwright-cli args...>
+      Run any raw playwright-cli command against this run's session.
+  cleanup
+      Close the browser session, stop ONLY the recorded server PID, and delete
+      scratch state while preserving the evidence directory.
+EOF
+}
+
+while [[ $# -gt 0 ]]; do
+  case "$1" in
+    --run-id)
+      [[ $# -ge 2 ]] || { echo "Error: --run-id requires a value" >&2; exit 2; }
+      RUN_ID="$2"
+      shift 2
+      ;;
+    -h|--help)
+      if [[ -z "$COMMAND" ]]; then
+        usage
+        exit 0
+      fi
+      ARGS+=("$1")
+      shift
+      ;;
+    *)
+      if [[ -z "$COMMAND" ]]; then
+        COMMAND="$1"
+      else
+        ARGS+=("$1")
+      fi
+      shift
+      ;;
+  esac
+done
+
+if [[ -z "$COMMAND" ]]; then
+  usage >&2
+  exit 2
+fi
+
+if [[ ! "$RUN_ID" =~ ^[A-Za-z0-9._-]+$ ]]; then
+  echo "Error: invalid --run-id '$RUN_ID' (use alphanumeric, dot, underscore, hyphen)" >&2
+  exit 2
+fi
+
+SCRATCH_DIR="/tmp/verify-piano-run-${RUN_ID}"
+INSTANCE_FILE="${SCRATCH_DIR}/instance.env"
+DEFAULT_EVIDENCE_DIR="/tmp/verify-piano-evidence-${RUN_ID}"
+SESSION_NAME="piano-${RUN_ID}"
+
+resolve_path() {
+  local raw="$1"
+  if [[ "$raw" = /* ]]; then
+    printf '%s\n' "$raw"
+  else
+    printf '%s/%s\n' "$CALLER_CWD" "$raw"
+  fi
+}
+
+load_instance() {
+  if [[ ! -f "$INSTANCE_FILE" ]]; then
+    echo "Error: no active instance for run-id '${RUN_ID}' (missing ${INSTANCE_FILE}). Run 'piano-verify --run-id ${RUN_ID} launch' first." >&2
+    exit 1
+  fi
+  # shellcheck disable=SC1090
+  source "$INSTANCE_FILE"
+}
+
+pw_in_scratch() {
+  (cd "$SCRATCH_DIR" && playwright-cli -s="$SESSION_NAME" "$@")
+}
+
+pick_free_port() {
+  bun -e '
+    const s = Bun.serve({ port: 0, fetch() { return new Response(""); } });
+    console.log(s.port);
+    s.stop(true);
+  '
+}
+
+port_listening_by_pid() {
+  local port="$1"
+  local pid="$2"
+  if command -v ss >/dev/null 2>&1; then
+    ss -ltnp 2>/dev/null | grep -E "(:|])${port}[[:space:]]" | grep -q "pid=${pid},"
+    return $?
+  fi
+  if command -v lsof >/dev/null 2>&1; then
+    lsof -nP -iTCP:"${port}" -sTCP:LISTEN -a -p "${pid}" >/dev/null 2>&1
+    return $?
+  fi
+  return 1
+}
+
+cmd_launch() {
+  local port=""
+  local mode="development"
+  local evidence_dir="$DEFAULT_EVIDENCE_DIR"
+
+  local i=0
+  while [[ $i -lt ${#ARGS[@]} ]]; do
+    case "${ARGS[$i]}" in
+      --port)
+        i=$((i + 1))
+        [[ $i -lt ${#ARGS[@]} ]] || { echo "Error: --port requires a value" >&2; exit 2; }
+        port="${ARGS[$i]}"
+        ;;
+      --prod)
+        mode="production"
+        ;;
+      --evidence-dir)
+        i=$((i + 1))
+        [[ $i -lt ${#ARGS[@]} ]] || { echo "Error: --evidence-dir requires a value" >&2; exit 2; }
+        evidence_dir="$(resolve_path "${ARGS[$i]}")"
+        ;;
+      *)
+        echo "Error: unknown launch option '${ARGS[$i]}'" >&2
+        exit 2
+        ;;
+    esac
+    i=$((i + 1))
+  done
+
+  if [[ -f "$INSTANCE_FILE" ]]; then
+    # shellcheck disable=SC1090
+    source "$INSTANCE_FILE"
+    if [[ -n "${PID:-}" ]] && kill -0 "$PID" 2>/dev/null; then
+      echo "Error: run-id '${RUN_ID}' already has a running server (PID ${PID} on ${URL}). Run cleanup first or use a distinct --run-id." >&2
+      exit 1
+    fi
+    rm -rf "$SCRATCH_DIR"
+  fi
+
+  command -v bun >/dev/null 2>&1 || { echo "Error: bun is not installed on PATH" >&2; exit 1; }
+  command -v playwright-cli >/dev/null 2>&1 || { echo "Error: playwright-cli is not installed on PATH" >&2; exit 1; }
+  command -v curl >/dev/null 2>&1 || { echo "Error: curl is not installed on PATH" >&2; exit 1; }
+
+  if [[ ! -d "${REPO_ROOT}/node_modules" ]]; then
+    echo "Installing dependencies (node_modules missing)..." >&2
+    (cd "$REPO_ROOT" && bun install >/dev/null)
+  fi
+
+  if [[ ! -f "${REPO_ROOT}/public/songs/songs.json" ]]; then
+    echo "Seeding Song Catalog (public/songs/songs.json missing)..." >&2
+    (cd "$REPO_ROOT" && bun run seed >/dev/null)
+  fi
+
+  if [[ "$mode" == "production" ]]; then
+    echo "Building production bundle..." >&2
+    (cd "$REPO_ROOT" && bun run build >/dev/null)
+  fi
+
+  if [[ -z "$port" ]]; then
+    port="$(pick_free_port)"
+  fi
+
+  mkdir -p "$SCRATCH_DIR" "$evidence_dir"
+
+  local db_path="${SCRATCH_DIR}/piano.db"
+  local log_path="${SCRATCH_DIR}/server.log"
+  local ai_endpoint="${AI_ENDPOINT:-off}"
+  local url="http://127.0.0.1:${port}"
+  local git_sha
+  git_sha="$(git -C "$REPO_ROOT" rev-parse --short HEAD 2>/dev/null || echo "unknown")"
+
+  local srv_pid=""
+  if [[ "$mode" == "production" ]]; then
+    (
+      cd "$REPO_ROOT"
+      NODE_ENV=production PORT="$port" DB_PATH="$db_path" AI_ENDPOINT="$ai_endpoint" \
+        nohup bun server.ts >"$log_path" 2>&1 </dev/null &
+      echo $! > "${SCRATCH_DIR}/server.pid"
+    )
+  else
+    (
+      cd "$REPO_ROOT"
+      PORT="$port" DB_PATH="$db_path" AI_ENDPOINT="$ai_endpoint" \
+        nohup bun server.ts >"$log_path" 2>&1 </dev/null &
+      echo $! > "${SCRATCH_DIR}/server.pid"
+    )
+  fi
+  srv_pid="$(cat "${SCRATCH_DIR}/server.pid")"
+
+  # Wait for process + startup log + DB/catalog endpoints to become usable
+  local ready=0
+  for _ in $(seq 1 75); do
+    if ! kill -0 "$srv_pid" 2>/dev/null; then
+      echo "Error: server process ${srv_pid} exited during startup. Log:" >&2
+      cat "$log_path" >&2 || true
+      rm -rf "$SCRATCH_DIR"
+      exit 1
+    fi
+    if grep -q "Piano Learning App running at" "$log_path" 2>/dev/null; then
+      local profile_ok songs_ok
+      profile_ok="$(curl -sf "${url}/api/profile" | bun -e 'const d = JSON.parse(await Bun.stdin.text()); console.log(d && d.keyboardRange ? "ok" : "bad");' 2>/dev/null || true)"
+      songs_ok="$(curl -sf "${url}/api/songs" | bun -e 'const d = JSON.parse(await Bun.stdin.text()); console.log(Array.isArray(d) && d.length > 0 ? "ok" : "bad");' 2>/dev/null || true)"
+      if [[ "$profile_ok" == "ok" && "$songs_ok" == "ok" ]]; then
+        ready=1
+        break
+      fi
+    fi
+    sleep 0.2
+  done
+
+  if [[ "$ready" -ne 1 ]]; then
+    echo "Error: Piano Studio failed to become ready on ${url} within 15s. Log:" >&2
+    cat "$log_path" >&2 || true
+    kill "$srv_pid" 2>/dev/null || true
+    rm -rf "$SCRATCH_DIR"
+    exit 1
+  fi
+
+  cat >"$INSTANCE_FILE" <<EOF
+RUN_ID='${RUN_ID}'
+PORT='${port}'
+URL='${url}'
+PID='${srv_pid}'
+DB_PATH='${db_path}'
+LOG_PATH='${log_path}'
+AI_ENDPOINT='${ai_endpoint}'
+MODE='${mode}'
+REPO_ROOT='${REPO_ROOT}'
+SCRATCH_DIR='${SCRATCH_DIR}'
+EVIDENCE_DIR='${evidence_dir}'
+SESSION_NAME='${SESSION_NAME}'
+GIT_SHA='${git_sha}'
+EOF
+
+  # Open isolated Playwright browser session at landscape tablet viewport (1340x800)
+  if ! pw_in_scratch open "$url" >/dev/null 2>&1; then
+    echo "Error: failed to open Playwright browser session '${SESSION_NAME}'" >&2
+    cmd_cleanup >/dev/null 2>&1 || true
+    exit 1
+  fi
+  pw_in_scratch resize 1340 800 >/dev/null
+  pw_in_scratch run-code "async (page) => { await page.getByRole('heading', { name: 'Piano Studio' }).waitFor({ state: 'visible', timeout: 10000 }); await page.getByText('Loading Piano Studio…').waitFor({ state: 'hidden', timeout: 10000 }); }" >/dev/null
+
+  echo "Launched Piano Studio verification instance:"
+  echo "  RUN_ID=${RUN_ID}"
+  echo "  URL=${url}"
+  echo "  PID=${srv_pid}"
+  echo "  MODE=${mode}"
+  echo "  DB_PATH=${db_path}"
+  echo "  AI_ENDPOINT=${ai_endpoint}"
+  echo "  SESSION_NAME=${SESSION_NAME}"
+  echo "  EVIDENCE_DIR=${evidence_dir}"
+  echo "  GIT_SHA=${git_sha}"
+}
+
+cmd_doctor() {
+  load_instance
+  local failures=0
+
+  check_pass() { echo "[PASS] $1"; }
+  check_fail() { echo "[FAIL] $1" >&2; failures=$((failures + 1)); }
+
+  if kill -0 "$PID" 2>/dev/null; then
+    check_pass "Server process alive (PID ${PID}, mode=${MODE}, git=${GIT_SHA})"
+  else
+    check_fail "Server process dead (expected PID ${PID})"
+  fi
+
+  if port_listening_by_pid "$PORT" "$PID"; then
+    check_pass "Port ${PORT} owned by PID ${PID} (${URL})"
+  else
+    check_fail "Port ${PORT} is not owned by PID ${PID}"
+  fi
+
+  if [[ -f "$DB_PATH" && "$DB_PATH" == "${SCRATCH_DIR}/"* ]]; then
+    check_pass "Isolated SQLite DB exists at ${DB_PATH}"
+  else
+    check_fail "Isolated SQLite DB missing or outside scratch dir (${DB_PATH})"
+  fi
+
+  local html_title
+  html_title="$(curl -sf "${URL}/" | grep -o '<title>[^<]*</title>' | head -n 1 || true)"
+  if [[ "$html_title" == "<title>Piano Learning Studio</title>" ]]; then
+    check_pass "Root HTML serves Piano Learning Studio"
+  else
+    check_fail "Unexpected root HTML title: '${html_title}'"
+  fi
+
+  local profile_summary
+  profile_summary="$(curl -sf "${URL}/api/profile" | bun -e '
+    const p = JSON.parse(await Bun.stdin.text());
+    if (!p || !p.keyboardRange) process.exit(1);
+    console.log(`skillLevel=${p.skillLevel} range=${p.keyboardRange.minNote}-${p.keyboardRange.maxNote} calibrated=${p.keyboardRange.calibrated}`);
+  ' 2>/dev/null || true)"
+  if [[ -n "$profile_summary" ]]; then
+    check_pass "/api/profile healthy (${profile_summary})"
+  else
+    check_fail "/api/profile returned invalid response"
+  fi
+
+  local songs_summary
+  songs_summary="$(curl -sf "${URL}/api/songs" | bun -e '
+    const s = JSON.parse(await Bun.stdin.text());
+    if (!Array.isArray(s) || s.length === 0) process.exit(1);
+    const cal = s.filter((x) => x.isCalibrationPiece).length;
+    console.log(`total=${s.length} calibrationPieces=${cal}`);
+  ' 2>/dev/null || true)"
+  if [[ -n "$songs_summary" ]]; then
+    check_pass "/api/songs healthy (${songs_summary})"
+  else
+    check_fail "/api/songs returned invalid response"
+  fi
+
+  local browser_title
+  browser_title="$(pw_in_scratch eval "() => document.title" --raw 2>/dev/null | tr -d '"' || true)"
+  if [[ "$browser_title" == "Piano Learning Studio" ]]; then
+    check_pass "Browser session '${SESSION_NAME}' attached to Piano Learning Studio"
+  else
+    check_fail "Browser session '${SESSION_NAME}' not attached or wrong title ('${browser_title}')"
+  fi
+
+  echo "  AI_ENDPOINT=${AI_ENDPOINT} EVIDENCE_DIR=${EVIDENCE_DIR}"
+
+  if [[ "$failures" -gt 0 ]]; then
+    echo "Doctor failed with ${failures} error(s)." >&2
+    exit 1
+  fi
+}
+
+cmd_click() {
+  load_instance
+  [[ ${#ARGS[@]} -ge 2 ]] || { echo "Usage: piano-verify click <role> <name> [--exact]" >&2; exit 2; }
+  local role="${ARGS[0]}"
+  local name="${ARGS[1]}"
+  local exact="false"
+  if [[ ${#ARGS[@]} -ge 3 && "${ARGS[2]}" == "--exact" ]]; then
+    exact="true"
+  fi
+
+  local code
+  code="$(ROLE="$role" NAME="$name" EXACT="$exact" bun -e '
+    const role = JSON.stringify(process.env.ROLE);
+    const name = JSON.stringify(process.env.NAME);
+    const exact = process.env.EXACT === "true";
+    console.log(`async (page) => { await page.getByRole(${role}, { name: ${name}, exact: ${exact} }).click(); }`);
+  ')"
+  pw_in_scratch run-code "$code"
+}
+
+cmd_set_range() {
+  load_instance
+  [[ ${#ARGS[@]} -eq 2 ]] || { echo "Usage: piano-verify set-range <aria-label> <value>" >&2; exit 2; }
+  local label="${ARGS[0]}"
+  local value="${ARGS[1]}"
+
+  local code
+  code="$(LABEL="$label" VALUE="$value" bun -e '
+    const label = JSON.stringify(process.env.LABEL);
+    const value = JSON.stringify(process.env.VALUE);
+    console.log(`async (page) => { await page.getByRole("slider", { name: ${label} }).fill(${value}); }`);
+  ')"
+  pw_in_scratch run-code "$code"
+}
+
+cmd_wait_text() {
+  load_instance
+  [[ ${#ARGS[@]} -ge 1 ]] || { echo "Usage: piano-verify wait-text <text> [--timeout <ms>]" >&2; exit 2; }
+  local text="${ARGS[0]}"
+  local timeout="10000"
+  if [[ ${#ARGS[@]} -ge 3 && "${ARGS[1]}" == "--timeout" ]]; then
+    timeout="${ARGS[2]}"
+  fi
+
+  local code
+  code="$(TEXT="$text" TIMEOUT="$timeout" bun -e '
+    const text = JSON.stringify(process.env.TEXT);
+    const timeout = Number(process.env.TIMEOUT) || 10000;
+    console.log(`async (page) => { await page.getByText(${text}).first().waitFor({ state: "visible", timeout: ${timeout} }); }`);
+  ')"
+  pw_in_scratch run-code "$code"
+}
+
+cmd_wait_role() {
+  load_instance
+  [[ ${#ARGS[@]} -ge 2 ]] || { echo "Usage: piano-verify wait-role <role> <name> [--exact] [--timeout <ms>]" >&2; exit 2; }
+  local role="${ARGS[0]}"
+  local name="${ARGS[1]}"
+  local exact="false"
+  local timeout="10000"
+  local i=2
+  while [[ $i -lt ${#ARGS[@]} ]]; do
+    case "${ARGS[$i]}" in
+      --exact) exact="true" ;;
+      --timeout)
+        i=$((i + 1))
+        [[ $i -lt ${#ARGS[@]} ]] || { echo "Error: --timeout requires a value" >&2; exit 2; }
+        timeout="${ARGS[$i]}"
+        ;;
+      *) echo "Error: unknown wait-role option '${ARGS[$i]}'" >&2; exit 2 ;;
+    esac
+    i=$((i + 1))
+  done
+
+  local code
+  code="$(ROLE="$role" NAME="$name" EXACT="$exact" TIMEOUT="$timeout" bun -e '
+    const role = JSON.stringify(process.env.ROLE);
+    const name = JSON.stringify(process.env.NAME);
+    const exact = process.env.EXACT === "true";
+    const timeout = Number(process.env.TIMEOUT) || 10000;
+    console.log(`async (page) => { await page.getByRole(${role}, { name: ${name}, exact: ${exact} }).first().waitFor({ state: "visible", timeout: ${timeout} }); }`);
+  ')"
+  pw_in_scratch run-code "$code"
+}
+
+cmd_snapshot() {
+  load_instance
+  if [[ ${#ARGS[@]} -ge 1 ]]; then
+    local out_path
+    out_path="$(resolve_path "${ARGS[0]}")"
+    mkdir -p "$(dirname "$out_path")"
+    pw_in_scratch snapshot --filename="$out_path"
+  else
+    pw_in_scratch snapshot
+  fi
+}
+
+cmd_screenshot() {
+  load_instance
+  [[ ${#ARGS[@]} -ge 1 ]] || { echo "Usage: piano-verify screenshot <output-file>" >&2; exit 2; }
+  local out_path
+  out_path="$(resolve_path "${ARGS[0]}")"
+  mkdir -p "$(dirname "$out_path")"
+  pw_in_scratch screenshot --filename="$out_path"
+}
+
+cmd_console() {
+  load_instance
+  if [[ ${#ARGS[@]} -ge 1 ]]; then
+    pw_in_scratch console "${ARGS[0]}"
+  else
+    pw_in_scratch console
+  fi
+}
+
+cmd_db() {
+  load_instance
+  DB_PATH="$DB_PATH" bun -e '
+    import { Database } from "bun:sqlite";
+    const db = new Database(process.env.DB_PATH!, { readonly: true });
+    const profile = db.query("SELECT * FROM learner_profile").all();
+    const history = db.query("SELECT id, skill_level, feedback_source, created_at, length(feedback) as feedback_len, json_array_length(summaries_json) as piece_count FROM calibration_history ORDER BY id ASC").all();
+    console.log(JSON.stringify({ dbPath: process.env.DB_PATH, learner_profile: profile, calibration_history: history }, null, 2));
+    db.close();
+  '
+}
+
+cmd_api() {
+  load_instance
+  [[ ${#ARGS[@]} -ge 2 ]] || { echo "Usage: piano-verify api <METHOD> <PATH> [JSON_BODY]" >&2; exit 2; }
+  local method="${ARGS[0]}"
+  local path="${ARGS[1]}"
+  if [[ ${#ARGS[@]} -ge 3 ]]; then
+    curl -sf -X "$method" -H "content-type: application/json" -d "${ARGS[2]}" "${URL}${path}"
+  else
+    curl -sf -X "$method" "${URL}${path}"
+  fi
+  echo
+}
+
+cmd_virtual_midi() {
+  load_instance
+  [[ ${#ARGS[@]} -ge 1 ]] || { echo "Usage: piano-verify virtual-midi <enable [device-name] | note <midi> [velocity] [duration-ms]>" >&2; exit 2; }
+  local sub="${ARGS[0]}"
+
+  case "$sub" in
+    enable)
+      local dev_name="${ARGS[1]:-Virtual Verification Piano}"
+      local code
+      code="$(DEV_NAME="$dev_name" bun -e '
+        const devName = JSON.stringify(process.env.DEV_NAME);
+        console.log(`async (page) => {
+          await page.addInitScript((deviceName) => {
+            const input = {
+              id: "verify-midi-in-1",
+              manufacturer: "Verification",
+              name: deviceName,
+              type: "input",
+              state: "connected",
+              connection: "open",
+              onmidimessage: null,
+              onstatechange: null,
+            };
+            const inputs = new Map([[input.id, input]]);
+            const access = {
+              inputs,
+              outputs: new Map(),
+              sysexEnabled: false,
+              onstatechange: null,
+            };
+            navigator.requestMIDIAccess = async () => access;
+            window.__verifyMidiSend = (status, midi, velocity) => {
+              if (typeof input.onmidimessage === "function") {
+                input.onmidimessage({
+                  data: new Uint8Array([status, midi, velocity]),
+                  timeStamp: performance.now(),
+                });
+              }
+            };
+          }, ${devName});
+          await page.reload();
+          await page.getByRole("heading", { name: "Piano Studio" }).waitFor({ state: "visible", timeout: 10000 });
+          await page.getByText("Loading Piano Studio…").waitFor({ state: "hidden", timeout: 10000 });
+        }`);
+      ')"
+      pw_in_scratch run-code "$code"
+      ;;
+    note)
+      [[ ${#ARGS[@]} -ge 2 ]] || { echo "Usage: piano-verify virtual-midi note <midi> [velocity] [duration-ms]" >&2; exit 2; }
+      local midi="${ARGS[1]}"
+      local velocity="${ARGS[2]:-100}"
+      local dur_ms="${ARGS[3]:-120}"
+      local code
+      code="async (page) => {
+        const ok = await page.evaluate(({ midi, velocity, durMs }) => {
+          if (typeof window.__verifyMidiSend !== 'function') return false;
+          window.__verifyMidiSend(0x90, midi, velocity);
+          return new Promise((resolve) => {
+            setTimeout(() => {
+              window.__verifyMidiSend(0x80, midi, 0);
+              resolve(true);
+            }, durMs);
+          });
+        }, { midi: ${midi}, velocity: ${velocity}, durMs: ${dur_ms} });
+        if (!ok) throw new Error('Virtual MIDI not enabled. Run: piano-verify virtual-midi enable');
+      }"
+      pw_in_scratch run-code "$code"
+      ;;
+    *)
+      echo "Error: unknown virtual-midi subcommand '${sub}'" >&2
+      exit 2
+      ;;
+  esac
+}
+
+cmd_browser() {
+  load_instance
+  [[ ${#ARGS[@]} -ge 1 ]] || { echo "Usage: piano-verify browser <playwright-cli args...>" >&2; exit 2; }
+  pw_in_scratch "${ARGS[@]}"
+}
+
+cmd_cleanup() {
+  local pid=""
+  local evidence_dir="$DEFAULT_EVIDENCE_DIR"
+  local session="$SESSION_NAME"
+
+  if [[ -f "$INSTANCE_FILE" ]]; then
+    # shellcheck disable=SC1090
+    source "$INSTANCE_FILE"
+    pid="${PID:-}"
+    evidence_dir="${EVIDENCE_DIR:-$DEFAULT_EVIDENCE_DIR}"
+    session="${SESSION_NAME:-$SESSION_NAME}"
+  fi
+
+  if [[ -d "$SCRATCH_DIR" ]]; then
+    (cd "$SCRATCH_DIR" && playwright-cli -s="$session" close >/dev/null 2>&1 || true)
+  else
+    playwright-cli -s="$session" close >/dev/null 2>&1 || true
+  fi
+
+  if [[ -n "$pid" ]] && kill -0 "$pid" 2>/dev/null; then
+    kill "$pid" 2>/dev/null || true
+    for _ in $(seq 1 15); do
+      kill -0 "$pid" 2>/dev/null || break
+      sleep 0.2
+    done
+    if kill -0 "$pid" 2>/dev/null; then
+      kill -9 "$pid" 2>/dev/null || true
+    fi
+  fi
+
+  rm -rf "$SCRATCH_DIR"
+
+  echo "Cleaned up Piano Studio verification instance (run-id=${RUN_ID})."
+  echo "  Removed scratch dir: ${SCRATCH_DIR}"
+  echo "  Preserved evidence dir: ${evidence_dir}"
+}
+
+case "$COMMAND" in
+  launch)       cmd_launch ;;
+  doctor)       cmd_doctor ;;
+  click)        cmd_click ;;
+  set-range)    cmd_set_range ;;
+  wait-text)    cmd_wait_text ;;
+  wait-role)    cmd_wait_role ;;
+  snapshot)     cmd_snapshot ;;
+  screenshot)   cmd_screenshot ;;
+  console)      cmd_console ;;
+  db)           cmd_db ;;
+  api)          cmd_api ;;
+  virtual-midi) cmd_virtual_midi ;;
+  browser)      cmd_browser ;;
+  cleanup)      cmd_cleanup ;;
+  *)
+    echo "Error: unknown command '${COMMAND}'" >&2
+    usage >&2
+    exit 2
+    ;;
+esac
