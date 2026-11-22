@@ -1,4 +1,3 @@
-import { Midi } from "@tonejs/midi";
 import { buildSongMeasures } from "./practiceEngine.ts";
 import type { FittedSong, Hand, ParsedSong, SongNote } from "./types.ts";
 
@@ -35,6 +34,23 @@ const KEY_TO_FIFTHS: Record<string, number> = {
   "A#m": 7,
 };
 
+interface SchedulerLike {
+  yield?: () => Promise<void>;
+}
+
+/**
+ * Yields control back to the browser main thread so pending user input and paint
+ * frames stay responsive during heavy MIDI parsing on low/mid-tier Android tablets.
+ */
+async function yieldToMain(): Promise<void> {
+  const sched = (globalThis as { scheduler?: SchedulerLike }).scheduler;
+  if (sched && typeof sched.yield === "function") {
+    await sched.yield();
+    return;
+  }
+  await new Promise<void>((resolve) => setTimeout(resolve, 0));
+}
+
 function inferHand(
   trackIdx: number,
   trackName: string,
@@ -51,7 +67,10 @@ function inferHand(
 }
 
 export async function loadParsedSong(fittedSong: FittedSong): Promise<ParsedSong> {
-  const response = await fetch(fittedSong.midiFile);
+  const [{ Midi }, response] = await Promise.all([
+    import("@tonejs/midi"),
+    fetch(fittedSong.midiFile),
+  ]);
   if (!response.ok) {
     throw new Error(`Failed to fetch MIDI file: ${fittedSong.midiFile} (${response.status})`);
   }
@@ -61,27 +80,43 @@ export async function loadParsedSong(fittedSong: FittedSong): Promise<ParsedSong
 
   const nonEmptyTrackCount = midi.tracks.filter((t) => t.notes.length > 0).length;
   const notes: SongNote[] = [];
+  let maxNoteEnd = midi.duration;
+  let deadline = performance.now() + 50;
 
-  midi.tracks.forEach((track, trackIdx) => {
-    for (const note of track.notes) {
+  for (let trackIdx = 0; trackIdx < midi.tracks.length; trackIdx++) {
+    const track = midi.tracks[trackIdx]!;
+    const trackName = track.name || "";
+    for (let i = 0; i < track.notes.length; i++) {
+      const note = track.notes[i]!;
       const transposedMidi = note.midi + fittedSong.transposeSemitones;
+      const duration = Math.max(0.06, note.duration);
+      const noteEnd = note.time + duration;
+      if (noteEnd > maxNoteEnd) maxNoteEnd = noteEnd;
+
       notes.push({
         midi: transposedMidi,
         time: note.time,
-        duration: Math.max(0.06, note.duration),
+        duration,
         velocity: note.velocity,
         track: trackIdx,
-        hand: inferHand(trackIdx, track.name || "", transposedMidi, nonEmptyTrackCount),
+        hand: inferHand(trackIdx, trackName, transposedMidi, nonEmptyTrackCount),
       });
+
+      // Check 50ms INP budget every 256 notes to avoid overhead while keeping input responsive
+      if ((i & 255) === 255 && performance.now() >= deadline) {
+        await yieldToMain();
+        deadline = performance.now() + 50;
+      }
     }
-  });
+  }
+
+  if (performance.now() >= deadline) {
+    await yieldToMain();
+  }
 
   notes.sort((a, b) => a.time - b.time || a.midi - b.midi);
 
-  const durationSec =
-    notes.length > 0
-      ? Math.max(midi.duration, ...notes.map((n) => n.time + n.duration))
-      : fittedSong.durationSec;
+  const durationSec = notes.length > 0 ? maxNoteEnd : fittedSong.durationSec;
 
   const bpm = Math.round(midi.header.tempos[0]?.bpm ?? fittedSong.bpm ?? 100);
 

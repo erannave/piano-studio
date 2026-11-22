@@ -38,9 +38,17 @@ function serveSafeFile(
   const headers: Record<string, string> = { ...extraHeaders };
   if (fullPath.endsWith(".webmanifest")) {
     headers["content-type"] = "application/manifest+json; charset=utf-8";
+    headers["cache-control"] ??= "no-cache";
   } else if (fullPath.endsWith("/sw.js")) {
     headers["content-type"] = "application/javascript; charset=utf-8";
     headers["cache-control"] = "no-cache";
+  } else if (fullPath.endsWith(".html")) {
+    // Use no-cache (not no-store) to keep bfcache eligible while ensuring fresh app shell
+    headers["cache-control"] ??= "no-cache";
+  } else if (fullPath.endsWith(".mid")) {
+    headers["cache-control"] ??= "public, max-age=86400";
+  } else if (/-[a-z0-9]{8,}\.(?:js|css)$/i.test(fullPath)) {
+    headers["cache-control"] ??= "public, max-age=31536000, immutable";
   }
   return Object.keys(headers).length > 0 ? new Response(file, { headers }) : new Response(file);
 }

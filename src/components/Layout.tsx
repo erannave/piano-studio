@@ -56,7 +56,7 @@ export function Layout({ children }: LayoutProps) {
         };
       default:
         return {
-          dot: "bg-sky-400 animate-pulse",
+          dot: "bg-sky-400 pulse-motion",
           text: "Checking MIDI...",
           cls: "border-slate-700 bg-slate-900 text-slate-300",
         };
@@ -70,7 +70,7 @@ export function Layout({ children }: LayoutProps) {
   return (
     <div className="h-dvh w-dvw overflow-hidden flex flex-col bg-slate-950 text-slate-100">
       {/* Top Bar optimized for 1340x800 landscape tablet */}
-      <header className="h-16 shrink-0 px-5 border-b border-slate-800 bg-slate-900/90 backdrop-blur flex items-center justify-between gap-4 z-30">
+      <header className="h-16 shrink-0 px-5 border-b border-slate-800 bg-slate-900/98 flex items-center justify-between gap-4 z-30">
         <div className="flex items-center gap-3 min-w-0">
           {currentStage !== "library" && profile.skillLevel !== null && (
             <button

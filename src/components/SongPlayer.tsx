@@ -19,6 +19,23 @@ function formatTime(sec: number): string {
   return `${mins}:${rem.toString().padStart(2, "0")}`;
 }
 
+function findFirstNoteAtOrAfter(
+  notes: ReadonlyArray<{ time: number }>,
+  targetTime: number,
+): number {
+  let lo = 0;
+  let hi = notes.length;
+  while (lo < hi) {
+    const mid = (lo + hi) >>> 1;
+    if (notes[mid]!.time < targetTime) {
+      lo = mid + 1;
+    } else {
+      hi = mid;
+    }
+  }
+  return lo;
+}
+
 export function SongPlayer() {
   const currentSong = useAppStore((s) => s.currentSong);
   const profile = useAppStore((s) => s.profile);
@@ -67,6 +84,7 @@ export function SongPlayer() {
     setSustain(sustainPedalDown);
   }, [sustainPedalDown, setSustain]);
 
+  // Discrete timeline state (only synced on pause/seek/song-change; 60fps playback drives DOM/canvas imperatively)
   const [currentTimeSec, setCurrentTimeSec] = useState(0);
   const [waitingNotes, setWaitingNotes] = useState<Set<number>>(new Set());
   const [countInBeat, setCountInBeat] = useState<number | null>(null);
@@ -75,6 +93,11 @@ export function SongPlayer() {
   const [loopActive, setLoopActive] = useState(false);
 
   const timeRef = useRef(0);
+  const canvasDrawRef = useRef<((timeSec: number) => void) | null>(null);
+  const scrubberRef = useRef<HTMLInputElement | null>(null);
+  const timeLabelRef = useRef<HTMLSpanElement | null>(null);
+  const lastDisplayedSecRef = useRef(-1);
+
   const lastFrameRef = useRef<number | null>(null);
   const nextNoteIdxRef = useRef(0);
   const waitCursorRef = useRef(0);
@@ -99,6 +122,29 @@ export function SongPlayer() {
   const loopRef = useRef({ start: loopStart, end: loopEnd, active: loopActive });
   loopRef.current = { start: loopStart, end: loopEnd, active: loopActive };
 
+  const maxNoteDuration = useMemo(() => {
+    if (!currentSong) return 0;
+    let maxDur = 0;
+    for (let i = 0; i < currentSong.notes.length; i++) {
+      const d = currentSong.notes[i]!.duration;
+      if (d > maxDur) maxDur = d;
+    }
+    return maxDur;
+  }, [currentSong]);
+
+  const syncTimelineDom = useCallback((sec: number, maxDur: number) => {
+    if (scrubberRef.current) {
+      scrubberRef.current.value = String(Math.min(maxDur, sec));
+    }
+    const wholeSec = Math.max(0, Math.floor(sec));
+    if (wholeSec !== lastDisplayedSecRef.current) {
+      lastDisplayedSecRef.current = wholeSec;
+      if (timeLabelRef.current) {
+        timeLabelRef.current.textContent = formatTime(wholeSec);
+      }
+    }
+  }, []);
+
   const cancelCountIn = useCallback(() => {
     for (const id of countInTimersRef.current) {
       window.clearTimeout(id);
@@ -111,6 +157,7 @@ export function SongPlayer() {
   useEffect(() => {
     cancelCountIn();
     timeRef.current = 0;
+    lastDisplayedSecRef.current = -1;
     nextNoteIdxRef.current = 0;
     waitCursorRef.current = 0;
     lastMetronomeBeatRef.current = -1;
@@ -118,13 +165,14 @@ export function SongPlayer() {
     prevActiveKeyRef.current = "";
     prevWaitingKeyRef.current = "";
     setCurrentTimeSec(0);
+    syncTimelineDom(0, currentSong?.durationSec ?? 1);
     setWaitingNotes(new Set());
     setActiveSongNotes(new Set());
     setLoopStart(null);
     setLoopEnd(null);
     setLoopActive(false);
     stopAll();
-  }, [currentSong, setActiveSongNotes, stopAll, cancelCountIn]);
+  }, [currentSong, setActiveSongNotes, stopAll, cancelCountIn, syncTimelineDom]);
 
   // Cleanup count-in timers on unmount
   useEffect(() => cancelCountIn, [cancelCountIn]);
@@ -136,10 +184,11 @@ export function SongPlayer() {
       const clamped = Math.max(0, Math.min(currentSong.durationSec, targetSec));
       stopAll();
       timeRef.current = clamped;
+      syncTimelineDom(clamped, currentSong.durationSec);
       setCurrentTimeSec(clamped);
+      canvasDrawRef.current?.(clamped);
 
-      const idx = currentSong.notes.findIndex((n) => n.time >= clamped - 0.01);
-      const nextIdx = idx === -1 ? currentSong.notes.length : idx;
+      const nextIdx = findFirstNoteAtOrAfter(currentSong.notes, clamped - 0.01);
       nextNoteIdxRef.current = nextIdx;
       waitCursorRef.current = nextIdx;
       lastMetronomeBeatRef.current = -1;
@@ -148,14 +197,13 @@ export function SongPlayer() {
       setWaitingNotes(new Set());
       setActiveSongNotes(new Set());
     },
-    [currentSong, setActiveSongNotes, stopAll, cancelCountIn],
+    [currentSong, setActiveSongNotes, stopAll, cancelCountIn, syncTimelineDom],
   );
 
   // When practiceHand or waitMode changes mid-song, realign wait cursor cleanly
   useEffect(() => {
     if (!currentSong) return;
-    const idx = currentSong.notes.findIndex((n) => n.time >= timeRef.current - 0.01);
-    waitCursorRef.current = idx === -1 ? currentSong.notes.length : idx;
+    waitCursorRef.current = findFirstNoteAtOrAfter(currentSong.notes, timeRef.current - 0.01);
     prevWaitingKeyRef.current = "";
     setWaitingNotes(new Set());
   }, [practiceHand, waitMode, currentSong]);
@@ -213,6 +261,7 @@ export function SongPlayer() {
     }
     if (isPlaying) {
       setIsPlaying(false);
+      setCurrentTimeSec(timeRef.current);
       return;
     }
     if (timeRef.current >= currentSong.durationSec - 0.05) {
@@ -269,7 +318,7 @@ export function SongPlayer() {
     [handleMidiNoteOff, noteOff],
   );
 
-  // Synchronized requestAnimationFrame playback loop (Wait Mode + Hand Isolation + Loop + Metronome)
+  // Synchronized requestAnimationFrame playback loop (zero React re-renders per frame)
   useEffect(() => {
     if (!isPlaying || !currentSong) {
       lastFrameRef.current = null;
@@ -295,8 +344,7 @@ export function SongPlayer() {
       if (loop.active && loop.start !== null && loop.end !== null && nextTime >= loop.end) {
         stopAll();
         nextTime = loop.start;
-        const idx = notes.findIndex((n) => n.time >= loop.start! - 0.01);
-        const nextIdx = idx === -1 ? notes.length : idx;
+        const nextIdx = findFirstNoteAtOrAfter(notes, loop.start - 0.01);
         nextNoteIdxRef.current = nextIdx;
         waitCursorRef.current = nextIdx;
         lastMetronomeBeatRef.current = -1;
@@ -326,7 +374,10 @@ export function SongPlayer() {
       }
 
       timeRef.current = nextTime;
-      setCurrentTimeSec(nextTime);
+
+      // Drive canvas + timeline DOM imperatively without triggering React re-renders
+      canvasDrawRef.current?.(nextTime);
+      syncTimelineDom(nextTime, totalDur);
 
       // Metronome click on beat boundaries (skip while frozen in Wait Mode)
       if (metronomeRef.current && !isWaitingNow) {
@@ -360,15 +411,16 @@ export function SongPlayer() {
         nextNoteIdxRef.current++;
       }
 
-      // Compute active target keys for keyboard lighting
+      // Compute active target keys for keyboard lighting via binary-searched window
       const active = new Set<number>();
-      for (const note of notes) {
-        if (note.time <= nextTime && note.time + note.duration >= nextTime) {
+      const startActiveIdx = findFirstNoteAtOrAfter(notes, nextTime - maxNoteDuration);
+      for (let i = startActiveIdx; i < notes.length; i++) {
+        const note = notes[i]!;
+        if (note.time > nextTime) break;
+        if (note.time + note.duration >= nextTime) {
           if (isPracticedHand(note.hand, practiceHandRef.current)) {
             active.add(note.midi);
           }
-        } else if (note.time > nextTime) {
-          break;
         }
       }
 
@@ -379,6 +431,7 @@ export function SongPlayer() {
       }
 
       if (!isWaitingNow && nextTime >= totalDur + 0.3) {
+        setCurrentTimeSec(totalDur);
         setIsPlaying(false);
         setActiveSongNotes(new Set());
         setWaitingNotes(new Set());
@@ -391,16 +444,19 @@ export function SongPlayer() {
     rafId = requestAnimationFrame(frame);
     return () => {
       cancelAnimationFrame(rafId);
+      setCurrentTimeSec(timeRef.current);
       stopAll();
     };
   }, [
     isPlaying,
     currentSong,
+    maxNoteDuration,
     playNote,
     playMetronomeClick,
     stopAll,
     setActiveSongNotes,
     setIsPlaying,
+    syncTimelineDom,
   ]);
 
   const visibleRange = useMemo(() => {
@@ -481,7 +537,10 @@ export function SongPlayer() {
 
         {/* Timeline scrubber with A-B loop indicator */}
         <div className="flex-1 max-w-md flex items-center gap-2.5">
-          <span className="font-mono text-xs text-slate-300 w-10 text-right">
+          <span
+            ref={timeLabelRef}
+            className="font-mono text-xs text-slate-300 w-10 text-right tabular-nums"
+          >
             {formatTime(currentTimeSec)}
           </span>
           <div className="relative flex-1 flex items-center">
@@ -494,17 +553,18 @@ export function SongPlayer() {
               />
             )}
             <input
+              ref={scrubberRef}
               type="range"
               min={0}
               max={durationSafe}
               step={0.05}
-              value={Math.min(currentSong.durationSec, currentTimeSec)}
+              defaultValue={Math.min(currentSong.durationSec, currentTimeSec)}
               onChange={(e) => seekTo(Number(e.target.value))}
               aria-label="Song progress"
               className="relative z-10 w-full h-2.5 accent-sky-400 cursor-pointer"
             />
           </div>
-          <span className="font-mono text-xs text-slate-400 w-10">
+          <span className="font-mono text-xs text-slate-400 w-10 tabular-nums">
             {formatTime(currentSong.durationSec)}
           </span>
         </div>
@@ -523,7 +583,7 @@ export function SongPlayer() {
               aria-label="Tempo speed"
               className="w-20 h-2 accent-sky-400 cursor-pointer"
             />
-            <span className="font-mono text-xs font-bold text-white w-9 text-right">
+            <span className="font-mono text-xs font-bold text-white w-9 text-right tabular-nums">
               {Math.round(tempo * 100)}%
             </span>
           </div>
@@ -742,6 +802,8 @@ export function SongPlayer() {
             notes={currentSong.notes}
             measures={currentSong.measures}
             currentTimeSec={currentTimeSec}
+            timeRef={timeRef}
+            drawHandleRef={canvasDrawRef}
             bpm={currentSong.bpm}
             keySignatureFifths={currentSong.keySignatureFifths}
             timeSignature={currentSong.timeSignature}
@@ -755,6 +817,8 @@ export function SongPlayer() {
           <FallingNotesCanvas
             notes={currentSong.notes}
             currentTimeSec={currentTimeSec}
+            timeRef={timeRef}
+            drawHandleRef={canvasDrawRef}
             minNote={visibleRange.minNote}
             maxNote={visibleRange.maxNote}
             activeUserNotes={activeUserNotes}
@@ -778,9 +842,9 @@ export function SongPlayer() {
           </div>
         )}
 
-        {/* Count-In overlay */}
+        {/* Count-In overlay (solid scrim instead of backdrop-blur for Android GPU performance) */}
         {countInBeat !== null && (
-          <div className="pointer-events-none absolute inset-0 z-30 bg-slate-950/45 backdrop-blur-[2px] flex flex-col items-center justify-center">
+          <div className="pointer-events-none absolute inset-0 z-30 bg-slate-950/60 flex flex-col items-center justify-center">
             <div className="text-xs font-bold uppercase tracking-widest text-sky-300 mb-1">
               Get Ready
             </div>
@@ -802,9 +866,9 @@ export function SongPlayer() {
         activeSongNotes={activeSongNotes}
         waitingNotes={waitingNotes}
         sustainPedalDown={sustainPedalDown}
+        heightClass="h-44"
         onKeyDown={handleVirtualKeyDown}
         onKeyUp={handleVirtualKeyUp}
-        heightClass="h-40"
       />
     </div>
   );

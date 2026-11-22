@@ -13,3 +13,26 @@
     touch-action: manipulation;
   }
 }
+
+/* Defer off-screen song card layout/paint (applied only to below-the-fold cards) */
+.song-card-deferred {
+  content-visibility: auto;
+  contain-intrinsic-size: auto none auto 152px;
+}
+
+/* Isolate high-frequency canvas & keyboard updates from global page reflow */
+.canvas-stage-contained {
+  contain: layout style paint;
+}
+
+.piano-keyboard-contained {
+  contain: layout style paint;
+  touch-action: none;
+}
+
+/* Opt in to pulsing motion only when the user has not requested reduced motion */
+@media (prefers-reduced-motion: no-preference) {
+  .pulse-motion {
+    animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+  }
+}

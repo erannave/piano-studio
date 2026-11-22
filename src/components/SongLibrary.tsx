@@ -1,4 +1,4 @@
-import { useMemo, useState } from "react";
+import { useDeferredValue, useMemo, useState } from "react";
 import {
   computeAutoZoomRange,
   fitSongToKeyboardRange,
@@ -7,6 +7,15 @@ import {
 import type { FittedSong } from "../shared/types.ts";
 import { useAppStore } from "../store/appStore.ts";
 import { PianoKeyboard } from "./PianoKeyboard.tsx";
+
+const EMPTY_NOTE_SET: ReadonlySet<number> = new Set();
+// Keep initial above-the-fold cards (3 columns x 3 rows on tablet) eagerly rendered
+const ABOVE_THE_FOLD_CARD_COUNT = 9;
+
+interface IndexedSong {
+  song: FittedSong;
+  searchText: string;
+}
 
 function formatDuration(sec: number): string {
   const s = Math.max(0, Math.round(sec));
@@ -28,12 +37,13 @@ export function SongLibrary() {
 
   const [filterMode, setFilterMode] = useState<"recommended" | "all">("recommended");
   const [searchQuery, setSearchQuery] = useState("");
+  const deferredSearchQuery = useDeferredValue(searchQuery);
   const skillLevel = profile.skillLevel ?? 1;
 
   // Exclude short calibration-only pieces from the main Song Library
   const librarySongs = useMemo(() => songs.filter((s) => !s.isCalibrationPiece), [songs]);
 
-  const { fittedSongs, excludedCount } = useMemo(() => {
+  const { indexedSongs, excludedCount } = useMemo(() => {
     const fitted: FittedSong[] = [];
     let excluded = 0;
     for (const song of librarySongs) {
@@ -45,27 +55,28 @@ export function SongLibrary() {
       }
     }
     fitted.sort((a, b) => a.difficultyLevel - b.difficultyLevel || a.title.localeCompare(b.title));
-    return { fittedSongs: fitted, excludedCount: excluded };
+    const indexed: IndexedSong[] = fitted.map((song) => ({
+      song,
+      searchText: `${song.title}\0${song.composer}\0${song.workTitle ?? ""}`.toLowerCase(),
+    }));
+    return { indexedSongs: indexed, excludedCount: excluded };
   }, [librarySongs, profile.keyboardRange]);
 
   const visibleSongs = useMemo(() => {
-    const q = searchQuery.trim().toLowerCase();
+    const q = deferredSearchQuery.trim().toLowerCase();
     const base =
       filterMode === "all" || q.length > 0
-        ? fittedSongs
+        ? indexedSongs
         : (() => {
-            const rec = fittedSongs.filter((s) => Math.abs(s.difficultyLevel - skillLevel) <= 1);
-            return rec.length > 0 ? rec : fittedSongs;
+            const rec = indexedSongs.filter(
+              ({ song }) => Math.abs(song.difficultyLevel - skillLevel) <= 1,
+            );
+            return rec.length > 0 ? rec : indexedSongs;
           })();
 
-    if (!q) return base;
-    return base.filter(
-      (s) =>
-        s.title.toLowerCase().includes(q) ||
-        s.composer.toLowerCase().includes(q) ||
-        (s.workTitle?.toLowerCase().includes(q) ?? false),
-    );
-  }, [fittedSongs, filterMode, skillLevel, searchQuery]);
+    if (!q) return base.map((entry) => entry.song);
+    return base.filter((entry) => entry.searchText.includes(q)).map((entry) => entry.song);
+  }, [indexedSongs, filterMode, skillLevel, deferredSearchQuery]);
 
   const idleKeyboardRange = useMemo(
     () => computeAutoZoomRange(null, null, profile.keyboardRange),
@@ -99,8 +110,8 @@ export function SongLibrary() {
           <div>
             <h2 className="text-2xl font-bold text-white">Song Library</h2>
             <p className="text-sm text-slate-400">
-              Showing {visibleSongs.length} of {fittedSongs.length} playable public-domain{" "}
-              {fittedSongs.length === 1 ? "song" : "songs"} for your{" "}
+              Showing {visibleSongs.length} of {indexedSongs.length} playable public-domain{" "}
+              {indexedSongs.length === 1 ? "song" : "songs"} for your{" "}
               <span className="font-mono text-slate-300">
                 {midiToNoteName(profile.keyboardRange.minNote)}–
                 {midiToNoteName(profile.keyboardRange.maxNote)}
@@ -152,7 +163,7 @@ export function SongLibrary() {
                     : "text-slate-300 hover:text-white"
                 }`}
               >
-                All Songs ({fittedSongs.length})
+                All Songs ({indexedSongs.length})
               </button>
             </div>
           </div>
@@ -188,7 +199,7 @@ export function SongLibrary() {
           </div>
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 pb-4">
-            {visibleSongs.map((song) => {
+            {visibleSongs.map((song, idx) => {
               const isMatch = Math.abs(song.difficultyLevel - skillLevel) <= 1;
               return (
                 <button
@@ -197,6 +208,8 @@ export function SongLibrary() {
                   disabled={songLoading}
                   onClick={() => void selectSong(song)}
                   className={`group text-left rounded-2xl p-5 border transition flex flex-col justify-between min-h-[152px] cursor-pointer disabled:opacity-60 ${
+                    idx >= ABOVE_THE_FOLD_CARD_COUNT ? "song-card-deferred " : ""
+                  }${
                     isMatch
                       ? "bg-slate-900 border-sky-500/40 hover:border-sky-400 hover:bg-slate-800/90"
                       : "bg-slate-900/70 border-slate-800 hover:border-slate-600 hover:bg-slate-800/80"
@@ -253,7 +266,7 @@ export function SongLibrary() {
         minNote={idleKeyboardRange.minNote}
         maxNote={idleKeyboardRange.maxNote}
         activeUserNotes={activeUserNotes}
-        activeSongNotes={new Set()}
+        activeSongNotes={EMPTY_NOTE_SET}
         sustainPedalDown={sustainPedalDown}
         heightClass="h-32"
       />
