@@ -9,7 +9,7 @@ Model-checks every interleaving of piece loading, Web MIDI recording, skipping, 
 
 ## Coverage record
 
-- **Sync commit:** `1126af85a048a1ba7cca95c8a1370ea26f2da6d2`
+- **Sync commit:** `fa3b5d61d41602d23d69106c5ae02444c28d1825`
 - **Covered files and functions:**
   - `src/components/SkillCalibration.tsx` — `pieceIdx`, `phase`, `parsedPiece`, `finishingRef`, `attemptsRef`, `finishCurrentPiece()`, `subscribeMidiEvents()`, `Start Piece`, `Finish Early`, `Too Hard — Skip`, `Pick Level Manually`, `Re-run Calibration`, `Open Song Library`
   - `src/store/appStore.ts` — `currentStage`, `submitCalibration()`, `setManualSkillLevel()`, `setStage()`
@@ -40,7 +40,7 @@ Model-checks every interleaving of piece loading, Web MIDI recording, skipping, 
 Compare the current tree against the sync commit above:
 
 ```bash
-git diff 1126af85a048a1ba7cca95c8a1370ea26f2da6d2 -- \
+git diff fa3b5d61d41602d23d69106c5ae02444c28d1825 -- \
   src/components/SkillCalibration.tsx \
   src/store/appStore.ts \
   src/components/Layout.tsx \

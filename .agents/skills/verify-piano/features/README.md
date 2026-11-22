@@ -7,13 +7,13 @@ This directory is the maintained source for verifying the user-facing behavior o
 - Start from the repo root with `.agents/skills/verify-piano/scripts/piano-verify` executable.
 - Launch an isolated run with `piano-verify --run-id <run-id> launch` (ephemeral port, disposable SQLite DB at `/tmp/verify-piano-run-<run-id>/piano.db`, `AI_ENDPOINT=off`, `1340x800` browser viewport).
 - Run `piano-verify --run-id <run-id> doctor` and require every check to pass before driving a feature.
-- Confirm the Song Catalog has 10 seeded Songs, including 3 Calibration Pieces (`Ode to Joy`, `Prelude in C Major (BWV 846)`, `Für Elise (Main Theme)`).
+- Confirm the Song Catalog has 74 seeded entries: 71 public-domain library Songs and 3 Calibration Pieces (`Ode to Joy (Calibration)`, `Prelude in C Major (Calibration)`, `Für Elise (Calibration)`).
 - Never drive an instance that was not started by this verification run.
 
 ## Driving conventions
 
 - Start every recipe from a fresh isolated instance unless its preconditions state a calibrated profile.
-- Prefer ARIA roles, accessible names, and slider `aria-label`s via `piano-verify click` and `piano-verify set-range`.
+- Prefer ARIA roles, accessible names, and input/slider `aria-label`s via `piano-verify click`, `piano-verify set-range`, and `piano-verify fill`.
 - Treat every quoted label literally, including en-dashes (`–`, U+2013) in note ranges like `Keys C2–C7` and `Recommended (L1–L2)`.
 - Pass `--exact` when clicking single-digit Skill Level buttons (`"1"` through `"10"`) so `"1"` does not match `"10"`.
 - For MIDI-dependent journeys in headless Chromium, attach the virtual Web MIDI boundary with `piano-verify virtual-midi enable` rather than calling store internals.
@@ -38,7 +38,7 @@ Each feature file starts with an H1 title and one paragraph describing the user-
 
 ## Features
 
-- [Keyboard Range Setup](./keyboard-range.md) covers first-run onboarding, preset selection, MIDI key detection, recalibration, and Song transposition/filtering.
+- [Keyboard Range Setup](./keyboard-range.md) covers first-run onboarding, preset selection, MIDI key detection, MIDI input device selection, recalibration, and Song transposition/filtering.
 - [Skill Calibration](./skill-calibration.md) covers the 3 Calibration Pieces, MIDI-triggered recording, skipping all pieces, manual Skill Level selection, scoring results, and re-running calibration.
-- [Song Library & Skill Level Filtering](./song-library.md) covers Recommended vs All Songs filtering, top-bar Skill Level adjustment, calibration coaching feedback banner, and opening a Song.
-- [Song Player & Audio Controls](./song-player.md) covers falling-notes playback, auto-zoomed keyboard bounds, transport controls, timeline scrubbing, tempo/volume/mute controls, live MIDI hits, and returning to Library.
+- [Song Library & Skill Level Filtering](./song-library.md) covers Recommended vs All Songs filtering, live Song search, top-bar Skill Level adjustment, calibration coaching feedback banner, and opening a Song.
+- [Song Player & Audio Controls](./song-player.md) covers default Score view and Piano Roll toggle, Tier 1 practice bar (Wait Mode, Hand Isolation, A-B Loop, Count-In, Metronome, Names), auto-zoomed clickable keyboard, transport controls, timeline scrubbing, tempo/volume/mute controls, live MIDI hits, and returning to Library.

@@ -24,7 +24,7 @@ Pass `--prod` to run `bun run build` and boot `NODE_ENV=production bun server.ts
 What `launch` does to reach a usable state from an empty data dir:
 
 1. Refuses to overwrite an already-running instance for the same `--run-id`.
-2. Installs `node_modules` via `bun install` if missing and runs `bun run seed` if `public/songs/songs.json` is missing.
+2. Installs `node_modules` via `bun install` if missing or stale (`bun.lock`/`package.json` newer than `node_modules`), and runs `bun run seed` if `public/songs/songs.json` is missing.
 3. Creates scratch directory `/tmp/verify-piano-run-<run-id>/` with an isolated `DB_PATH=/tmp/verify-piano-run-<run-id>/piano.db` (never touching `data/piano.db`) and `AI_ENDPOINT=off` (disabling the default LAN coaching endpoint `http://192.168.0.101:8317/v1/messages`).
 4. Starts `bun server.ts` in the background, recording its exact PID and metadata in `/tmp/verify-piano-run-<run-id>/instance.env`.
 5. Waits for the startup log line (`Piano Learning App running at ...`), a valid `GET /api/profile` JSON response (`PianoDatabase` auto-creates `learner_profile` and `calibration_history` and seeds row `id = 1`), and a non-empty `GET /api/songs` catalog.
@@ -45,7 +45,7 @@ Doctor verifies:
 - Recorded server PID is alive and owns the recorded TCP port.
 - `DB_PATH` exists inside `/tmp/verify-piano-run-<run-id>/` (isolated from repo `data/piano.db`).
 - `GET /` serves `<title>Piano Learning Studio</title>`.
-- `GET /api/profile` returns valid learner profile JSON and `GET /api/songs` returns the seeded Song Catalog (10 songs, 3 calibration pieces).
+- `GET /api/profile` returns valid learner profile JSON and `GET /api/songs` returns the seeded Song Catalog (74 entries: 71 public-domain library songs and 3 calibration pieces).
 - Browser session `piano-<run-id>` is attached to `Piano Learning Studio`.
 
 Abort and inspect `/tmp/verify-piano-run-<run-id>/server.log` if doctor fails. Never drive an instance started outside this run.
@@ -62,6 +62,10 @@ Drive the app through user-visible handles — ARIA roles, accessible names, and
 - **Adjust sliders by `aria-label`:** `Song progress`, `Tempo speed`, `Audio volume`:
   ```bash
   .agents/skills/verify-piano/scripts/piano-verify --run-id <run-id> set-range "Tempo speed" 0.75
+  ```
+- **Fill labeled inputs by `aria-label`:** e.g. `Search songs`:
+  ```bash
+  .agents/skills/verify-piano/scripts/piano-verify --run-id <run-id> fill "Search songs" "Chopin"
   ```
 - **Wait on observable roles or text instead of sleeping:**
   ```bash
@@ -110,6 +114,7 @@ All verification operations live in one executable script: `.agents/skills/verif
 | `piano-verify --run-id <id> doctor` | Read-only health check of server, port, DB, catalog, and browser |
 | `piano-verify --run-id <id> click <role> <name> [--exact]` | Click element by ARIA role and accessible name |
 | `piano-verify --run-id <id> set-range <aria-label> <value>` | Set `<input type="range">` by `aria-label` |
+| `piano-verify --run-id <id> fill <aria-label> <value>` | Fill a text/search input by `aria-label` |
 | `piano-verify --run-id <id> wait-text <text> [--timeout MS]` | Wait for visible text |
 | `piano-verify --run-id <id> wait-role <role> <name> [--exact] [--timeout MS]` | Wait for visible ARIA role + accessible name |
 | `piano-verify --run-id <id> snapshot [file]` | Capture ARIA snapshot (stdout or file) |

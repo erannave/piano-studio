@@ -29,6 +29,8 @@ Commands:
       Click a UI element by ARIA role and accessible name.
   set-range <aria-label> <value>
       Set a slider (<input type="range">) by its accessible label.
+  fill <aria-label> <value>
+      Fill a text/search input by its accessible label.
   wait-text <text> [--timeout <ms>]
       Wait until visible text appears on the page (default timeout: 10000ms).
   wait-role <role> <name> [--exact] [--timeout <ms>]
@@ -185,9 +187,10 @@ cmd_launch() {
   command -v playwright-cli >/dev/null 2>&1 || { echo "Error: playwright-cli is not installed on PATH" >&2; exit 1; }
   command -v curl >/dev/null 2>&1 || { echo "Error: curl is not installed on PATH" >&2; exit 1; }
 
-  if [[ ! -d "${REPO_ROOT}/node_modules" ]]; then
-    echo "Installing dependencies (node_modules missing)..." >&2
+  if [[ ! -d "${REPO_ROOT}/node_modules" || "${REPO_ROOT}/bun.lock" -nt "${REPO_ROOT}/node_modules" || "${REPO_ROOT}/package.json" -nt "${REPO_ROOT}/node_modules" ]]; then
+    echo "Installing dependencies (node_modules missing or stale)..." >&2
     (cd "$REPO_ROOT" && bun install >/dev/null)
+    touch "${REPO_ROOT}/node_modules"
   fi
 
   if [[ ! -f "${REPO_ROOT}/public/songs/songs.json" ]]; then
@@ -402,6 +405,21 @@ cmd_set_range() {
     const label = JSON.stringify(process.env.LABEL);
     const value = JSON.stringify(process.env.VALUE);
     console.log(`async (page) => { await page.getByRole("slider", { name: ${label} }).fill(${value}); }`);
+  ')"
+  pw_in_scratch run-code "$code"
+}
+
+cmd_fill() {
+  load_instance
+  [[ ${#ARGS[@]} -eq 2 ]] || { echo "Usage: piano-verify fill <aria-label> <value>" >&2; exit 2; }
+  local label="${ARGS[0]}"
+  local value="${ARGS[1]}"
+
+  local code
+  code="$(LABEL="$label" VALUE="$value" bun -e '
+    const label = JSON.stringify(process.env.LABEL);
+    const value = JSON.stringify(process.env.VALUE);
+    console.log(`async (page) => { await page.getByLabel(${label}).fill(${value}); }`);
   ')"
   pw_in_scratch run-code "$code"
 }
@@ -634,6 +652,7 @@ case "$COMMAND" in
   doctor)       cmd_doctor ;;
   click)        cmd_click ;;
   set-range)    cmd_set_range ;;
+  fill)         cmd_fill ;;
   wait-text)    cmd_wait_text ;;
   wait-role)    cmd_wait_role ;;
   snapshot)     cmd_snapshot ;;
