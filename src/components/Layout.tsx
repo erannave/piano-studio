@@ -10,6 +10,10 @@ interface LayoutProps {
 export function Layout({ children }: LayoutProps) {
   const midiStatus = useAppStore((s) => s.midiStatus);
   const connectedDeviceName = useAppStore((s) => s.connectedDeviceName);
+  const midiDevices = useAppStore((s) => s.midiDevices);
+  const selectedMidiDeviceId = useAppStore((s) => s.selectedMidiDeviceId);
+  const setSelectedMidiDeviceId = useAppStore((s) => s.setSelectedMidiDeviceId);
+  const sustainPedalDown = useAppStore((s) => s.sustainPedalDown);
   const profile = useAppStore((s) => s.profile);
   const currentStage = useAppStore((s) => s.currentStage);
   const isMuted = useAppStore((s) => s.isMuted);
@@ -20,6 +24,7 @@ export function Layout({ children }: LayoutProps) {
   const setManualSkillLevel = useAppStore((s) => s.setManualSkillLevel);
 
   const [showLevelPicker, setShowLevelPicker] = useState(false);
+  const [showMidiPicker, setShowMidiPicker] = useState(false);
 
   const midiBadge = (() => {
     switch (midiStatus) {
@@ -27,13 +32,13 @@ export function Layout({ children }: LayoutProps) {
         return {
           dot: "bg-emerald-400 shadow-[0_0_8px_rgba(52,211,153,0.9)]",
           text: connectedDeviceName || "MIDI Connected",
-          cls: "border-emerald-500/40 bg-emerald-950/50 text-emerald-200",
+          cls: "border-emerald-500/40 bg-emerald-950/50 text-emerald-200 hover:bg-emerald-900/50",
         };
       case "no-devices":
         return {
           dot: "bg-amber-400",
           text: "No MIDI Piano",
-          cls: "border-amber-500/30 bg-amber-950/40 text-amber-200",
+          cls: "border-amber-500/30 bg-amber-950/40 text-amber-200 hover:bg-amber-900/40",
         };
       case "denied":
         return {
@@ -57,7 +62,7 @@ export function Layout({ children }: LayoutProps) {
   })();
 
   const rangeLabel = `${midiToNoteName(profile.keyboardRange.minNote)}–${midiToNoteName(
-    profile.keyboardRange.maxNote
+    profile.keyboardRange.maxNote,
   )}`;
 
   return (
@@ -85,11 +90,79 @@ export function Layout({ children }: LayoutProps) {
             </h1>
           </div>
 
-          <div
-            className={`px-3 py-1.5 rounded-full border text-sm font-medium flex items-center gap-2 truncate max-w-[260px] ${midiBadge.cls}`}
-          >
-            <span className={`w-2.5 h-2.5 rounded-full shrink-0 ${midiBadge.dot}`} />
-            <span className="truncate">{midiBadge.text}</span>
+          {/* MIDI Status + Input Device Selector */}
+          <div className="relative">
+            <button
+              type="button"
+              onClick={() => setShowMidiPicker((v) => !v)}
+              className={`px-3 py-1.5 rounded-full border text-sm font-medium flex items-center gap-2 truncate max-w-[260px] transition cursor-pointer ${midiBadge.cls}`}
+            >
+              <span className={`w-2.5 h-2.5 rounded-full shrink-0 ${midiBadge.dot}`} />
+              <span className="truncate">{midiBadge.text}</span>
+              {sustainPedalDown && (
+                <span className="px-1.5 py-0.2 rounded bg-amber-400 text-slate-950 text-[10px] font-extrabold">
+                  PED
+                </span>
+              )}
+              {midiDevices.length > 0 && <span className="text-[10px] opacity-75">▼</span>}
+            </button>
+
+            {showMidiPicker && (
+              <div className="absolute left-0 mt-2 w-72 rounded-2xl border border-slate-700 bg-slate-900 shadow-2xl p-3 z-50">
+                <div className="flex items-center justify-between mb-2 px-1">
+                  <span className="text-xs font-bold uppercase tracking-wider text-slate-400">
+                    MIDI Input Device
+                  </span>
+                  <button
+                    type="button"
+                    onClick={() => setShowMidiPicker(false)}
+                    className="text-slate-400 hover:text-white text-xs px-1.5 py-0.5 cursor-pointer"
+                  >
+                    ✕
+                  </button>
+                </div>
+                {midiDevices.length === 0 ? (
+                  <p className="text-xs text-slate-400 px-1 py-2">
+                    Connect a USB or Bluetooth MIDI piano to play along. You can also click the
+                    on-screen keys directly.
+                  </p>
+                ) : (
+                  <div className="flex flex-col gap-1">
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setSelectedMidiDeviceId(null);
+                        setShowMidiPicker(false);
+                      }}
+                      className={`w-full text-left px-3 py-2 rounded-xl text-sm font-medium transition cursor-pointer ${
+                        selectedMidiDeviceId === null
+                          ? "bg-sky-500/20 text-sky-200 border border-sky-400/40"
+                          : "hover:bg-slate-800 text-slate-200"
+                      }`}
+                    >
+                      All Connected Devices ({midiDevices.length})
+                    </button>
+                    {midiDevices.map((dev) => (
+                      <button
+                        key={dev.id}
+                        type="button"
+                        onClick={() => {
+                          setSelectedMidiDeviceId(dev.id);
+                          setShowMidiPicker(false);
+                        }}
+                        className={`w-full text-left px-3 py-2 rounded-xl text-sm font-medium truncate transition cursor-pointer ${
+                          selectedMidiDeviceId === dev.id
+                            ? "bg-sky-500/20 text-sky-200 border border-sky-400/40"
+                            : "hover:bg-slate-800 text-slate-200"
+                        }`}
+                      >
+                        {dev.name}
+                      </button>
+                    ))}
+                  </div>
+                )}
+              </div>
+            )}
           </div>
         </div>
 

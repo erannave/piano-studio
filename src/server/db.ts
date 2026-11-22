@@ -43,11 +43,11 @@ export class PianoDatabase {
       );
     `);
 
-    const cols = this.db
-      .query<{ name: string }, []>(`PRAGMA table_info(learner_profile)`)
-      .all();
+    const cols = this.db.query<{ name: string }, []>(`PRAGMA table_info(learner_profile)`).all();
     if (!cols.some((c) => c.name === "level_version")) {
-      this.db.run(`ALTER TABLE learner_profile ADD COLUMN level_version INTEGER NOT NULL DEFAULT 0`);
+      this.db.run(
+        `ALTER TABLE learner_profile ADD COLUMN level_version INTEGER NOT NULL DEFAULT 0`,
+      );
     }
 
     this.db.run(`
@@ -65,7 +65,7 @@ export class PianoDatabase {
     this.db.run(
       `INSERT OR IGNORE INTO learner_profile (id, keyboard_min_note, keyboard_max_note, keyboard_calibrated, updated_at)
        VALUES (1, ?, ?, 0, ?)`,
-      [PIANO_MIN_NOTE, PIANO_MAX_NOTE, now]
+      [PIANO_MIN_NOTE, PIANO_MAX_NOTE, now],
     );
   }
 
@@ -73,7 +73,7 @@ export class PianoDatabase {
     const row = this.db
       .query<ProfileRow, []>(
         `SELECT skill_level, feedback, feedback_source, keyboard_min_note, keyboard_max_note, keyboard_calibrated, calibrated_at, updated_at
-         FROM learner_profile WHERE id = 1`
+         FROM learner_profile WHERE id = 1`,
       )
       .get();
 
@@ -105,12 +105,18 @@ export class PianoDatabase {
 
   getLevelVersion(): number {
     const row = this.db
-      .query<{ level_version: number }, []>(`SELECT level_version FROM learner_profile WHERE id = 1`)
+      .query<{ level_version: number }, []>(
+        `SELECT level_version FROM learner_profile WHERE id = 1`,
+      )
       .get();
     return row?.level_version ?? 0;
   }
 
-  updateSkillLevel(skillLevel: number, feedback?: string | null, feedbackSource?: "ai" | "local" | null): LearnerProfile {
+  updateSkillLevel(
+    skillLevel: number,
+    feedback?: string | null,
+    feedbackSource?: "ai" | "local" | null,
+  ): LearnerProfile {
     const clamped = Math.max(1, Math.min(10, Math.round(skillLevel)));
     const now = new Date().toISOString();
 
@@ -119,14 +125,14 @@ export class PianoDatabase {
         `UPDATE learner_profile
          SET skill_level = ?, feedback = ?, feedback_source = ?, updated_at = ?, level_version = level_version + 1
          WHERE id = 1`,
-        [clamped, feedback, feedbackSource ?? "local", now]
+        [clamped, feedback, feedbackSource ?? "local", now],
       );
     } else {
       this.db.run(
         `UPDATE learner_profile
          SET skill_level = ?, updated_at = ?, level_version = level_version + 1
          WHERE id = 1`,
-        [clamped, now]
+        [clamped, now],
       );
     }
 
@@ -140,7 +146,7 @@ export class PianoDatabase {
       `UPDATE learner_profile
        SET keyboard_min_note = ?, keyboard_max_note = ?, keyboard_calibrated = ?, updated_at = ?
        WHERE id = 1`,
-      [clamped.minNote, clamped.maxNote, calibrated ? 1 : 0, now]
+      [clamped.minNote, clamped.maxNote, calibrated ? 1 : 0, now],
     );
     return this.getProfile();
   }
@@ -151,7 +157,7 @@ export class PianoDatabase {
       `UPDATE learner_profile
        SET skill_level = ?, feedback = ?, feedback_source = ?, calibrated_at = ?, updated_at = ?, level_version = level_version + 1
        WHERE id = 1`,
-      [result.skillLevel, result.feedback, result.feedbackSource, now, now]
+      [result.skillLevel, result.feedback, result.feedbackSource, now, now],
     );
 
     this.db.run(
@@ -163,7 +169,7 @@ export class PianoDatabase {
         result.feedbackSource,
         JSON.stringify(result.pieceSummaries),
         now,
-      ]
+      ],
     );
 
     return this.getProfile();
@@ -171,14 +177,14 @@ export class PianoDatabase {
 
   saveCalibrationResultIfCurrent(
     result: CalibrationResult,
-    expectedLevelVersion: number
+    expectedLevelVersion: number,
   ): { applied: boolean; profile: LearnerProfile } {
     const now = result.calibratedAt || new Date().toISOString();
     const update = this.db.run(
       `UPDATE learner_profile
        SET skill_level = ?, feedback = ?, feedback_source = ?, calibrated_at = ?, updated_at = ?, level_version = level_version + 1
        WHERE id = 1 AND level_version = ?`,
-      [result.skillLevel, result.feedback, result.feedbackSource, now, now, expectedLevelVersion]
+      [result.skillLevel, result.feedback, result.feedbackSource, now, now, expectedLevelVersion],
     );
 
     if (update.changes === 0) {
@@ -194,7 +200,7 @@ export class PianoDatabase {
         result.feedbackSource,
         JSON.stringify(result.pieceSummaries),
         now,
-      ]
+      ],
     );
 
     return { applied: true, profile: this.getProfile() };

@@ -1,128 +1,1417 @@
 [
   {
-    "id": "twinkle-twinkle",
-    "title": "Twinkle, Twinkle, Little Star",
-    "composer": "Traditional",
-    "difficultyLevel": 1,
-    "midiFile": "/songs/twinkle-twinkle.mid",
-    "durationSec": 28.7,
-    "minNote": 60,
-    "maxNote": 69,
-    "bpm": 100,
-    "description": "Gentle single-hand C-position melody ideal for first-time players."
-  },
-  {
-    "id": "ode-to-joy",
-    "title": "Ode to Joy",
+    "id": "cal-ode-to-joy",
+    "title": "Ode to Joy (Calibration)",
     "composer": "Ludwig van Beethoven",
     "difficultyLevel": 2,
-    "midiFile": "/songs/ode-to-joy.mid",
+    "midiFile": "/songs/cal-ode-to-joy.mid",
     "durationSec": 17.1,
     "minNote": 60,
     "maxNote": 67,
     "bpm": 112,
     "isCalibrationPiece": true,
     "calibrationOrder": 1,
-    "description": "Five-finger stepwise melody with steady quarter-note rhythm."
+    "description": "Five-finger stepwise melody with steady quarter-note rhythm.",
+    "keySignatureFifths": 0,
+    "timeSignature": {
+      "numerator": 4,
+      "denominator": 4
+    }
   },
   {
-    "id": "aura-lee",
-    "title": "Aura Lee (Two Hands)",
-    "composer": "George R. Poulton",
-    "difficultyLevel": 3,
-    "midiFile": "/songs/aura-lee.mid",
-    "durationSec": 19.9,
-    "minNote": 48,
-    "maxNote": 67,
-    "bpm": 96,
-    "description": "Warm melody paired with simple sustained left-hand fifths."
-  },
-  {
-    "id": "minuet-in-g",
-    "title": "Minuet in G Major",
-    "composer": "Christian Petzold (attr. Bach)",
-    "difficultyLevel": 4,
-    "midiFile": "/songs/minuet-in-g.mid",
-    "durationSec": 12.4,
-    "minNote": 48,
-    "maxNote": 79,
-    "bpm": 116,
-    "description": "Classic 3/4 Baroque dance introducing independent two-hand phrasing."
-  },
-  {
-    "id": "prelude-in-c",
-    "title": "Prelude in C Major (BWV 846)",
+    "id": "cal-prelude-in-c",
+    "title": "Prelude in C Major (Calibration)",
     "composer": "Johann Sebastian Bach",
     "difficultyLevel": 5,
-    "midiFile": "/songs/prelude-in-c.mid",
-    "durationSec": 17.6,
+    "midiFile": "/songs/cal-prelude-in-c.mid",
+    "durationSec": 15.7,
     "minNote": 59,
     "maxNote": 77,
     "bpm": 108,
     "isCalibrationPiece": true,
     "calibrationOrder": 2,
-    "description": "Flowing broken-chord arpeggios testing even hand-to-hand coordination."
+    "description": "Flowing broken-chord arpeggios testing even hand-to-hand coordination.",
+    "keySignatureFifths": 0,
+    "timeSignature": {
+      "numerator": 4,
+      "denominator": 4
+    }
   },
   {
-    "id": "canon-in-d",
-    "title": "Canon in D (Excerpt)",
-    "composer": "Johann Pachelbel",
-    "difficultyLevel": 6,
-    "midiFile": "/songs/canon-in-d.mid",
-    "durationSec": 21.7,
-    "minNote": 38,
-    "maxNote": 81,
-    "bpm": 88,
-    "description": "Interlocking melody over the famous descending Baroque bass line."
-  },
-  {
-    "id": "gymnopedie-1",
-    "title": "Gymnopédie No. 1 (Excerpt)",
-    "composer": "Erik Satie",
-    "difficultyLevel": 7,
-    "midiFile": "/songs/gymnopedie-1.mid",
-    "durationSec": 18.9,
-    "minNote": 38,
-    "maxNote": 81,
-    "bpm": 76,
-    "description": "Expressive left-hand bass-to-chord leaps with a sparse, floating melody."
-  },
-  {
-    "id": "fur-elise",
-    "title": "Für Elise (Main Theme)",
+    "id": "cal-fur-elise",
+    "title": "Für Elise (Calibration)",
     "composer": "Ludwig van Beethoven",
     "difficultyLevel": 8,
-    "midiFile": "/songs/fur-elise.mid",
+    "midiFile": "/songs/cal-fur-elise.mid",
     "durationSec": 12.1,
     "minNote": 40,
     "maxNote": 76,
     "bpm": 118,
     "isCalibrationPiece": true,
     "calibrationOrder": 3,
-    "description": "Iconic chromatic 16th-note motif paired with sweeping left-hand arpeggios."
+    "description": "Iconic chromatic 16th-note motif paired with sweeping left-hand arpeggios.",
+    "keySignatureFifths": 0,
+    "timeSignature": {
+      "numerator": 4,
+      "denominator": 4
+    }
+  },
+  {
+    "id": "aloha-oe",
+    "title": "Aloha ʻOe",
+    "composer": "Queen Liliʻuokalani",
+    "difficultyLevel": 5,
+    "midiFile": "/songs/aloha-oe.mid",
+    "durationSec": 54,
+    "minNote": 36,
+    "maxNote": 72,
+    "bpm": 90,
+    "source": "sightread.dev (Public Domain MusicXML)",
+    "license": "Public Domain",
+    "keySignatureFifths": 1,
+    "timeSignature": {
+      "numerator": 4,
+      "denominator": 4
+    }
+  },
+  {
+    "id": "amazing-grace",
+    "title": "Amazing Grace",
+    "composer": "Trad.",
+    "difficultyLevel": 1,
+    "midiFile": "/songs/amazing-grace.mid",
+    "durationSec": 38.7,
+    "minNote": 48,
+    "maxNote": 74,
+    "bpm": 76,
+    "source": "sightread.dev (Public Domain MusicXML)",
+    "license": "Public Domain",
+    "keySignatureFifths": 1,
+    "timeSignature": {
+      "numerator": 3,
+      "denominator": 4
+    }
+  },
+  {
+    "id": "arabesques",
+    "title": "Deux Arabesques, L. 66 — Arabesque No. 1",
+    "composer": "Claude Debussy",
+    "difficultyLevel": 7,
+    "midiFile": "/songs/arabesques.mid",
+    "durationSec": 245.8,
+    "minNote": 28,
+    "maxNote": 92,
+    "bpm": 104,
+    "workTitle": "Deux Arabesques",
+    "workNumber": "L. 66",
+    "source": "sightread.dev (Public Domain MusicXML)",
+    "license": "Public Domain",
+    "keySignatureFifths": 4,
+    "timeSignature": {
+      "numerator": 4,
+      "denominator": 4
+    }
+  },
+  {
+    "id": "auld-lang-syne",
+    "title": "Auld Lang Syne",
+    "composer": "Trad.",
+    "difficultyLevel": 2,
+    "midiFile": "/songs/auld-lang-syne.mid",
+    "durationSec": 48.6,
+    "minNote": 41,
+    "maxNote": 74,
+    "bpm": 84,
+    "source": "sightread.dev (Public Domain MusicXML)",
+    "license": "Public Domain",
+    "keySignatureFifths": -1,
+    "timeSignature": {
+      "numerator": 4,
+      "denominator": 4
+    }
+  },
+  {
+    "id": "ave-maria-bach-gounod",
+    "title": "Ave Maria (Méditation sur le Prélude BWV 846)",
+    "composer": "Bach / Gounod",
+    "difficultyLevel": 5,
+    "midiFile": "/songs/ave-maria-bach-gounod.mid",
+    "durationSec": 149.1,
+    "minNote": 36,
+    "maxNote": 88,
+    "bpm": 66,
+    "source": "sightread.dev (Public Domain MusicXML)",
+    "license": "Public Domain",
+    "keySignatureFifths": 0,
+    "timeSignature": {
+      "numerator": 4,
+      "denominator": 4
+    }
+  },
+  {
+    "id": "ave-maria-schubert",
+    "title": "Ave Maria (Ellens Gesang III), D. 839",
+    "composer": "Franz Schubert",
+    "difficultyLevel": 7,
+    "midiFile": "/songs/ave-maria-schubert.mid",
+    "durationSec": 144,
+    "minNote": 27,
+    "maxNote": 80,
+    "bpm": 50,
+    "workNumber": "D. 839",
+    "source": "sightread.dev (Public Domain MusicXML)",
+    "license": "Public Domain",
+    "keySignatureFifths": -2,
+    "timeSignature": {
+      "numerator": 4,
+      "denominator": 4
+    }
+  },
+  {
+    "id": "battle-hymn-of-the-republic",
+    "title": "Battle Hymn of the Republic",
+    "composer": "Trad.",
+    "difficultyLevel": 4,
+    "midiFile": "/songs/battle-hymn-of-the-republic.mid",
+    "durationSec": 26.9,
+    "minNote": 50,
+    "maxNote": 78,
+    "bpm": 108,
+    "source": "sightread.dev (Public Domain MusicXML)",
+    "license": "Public Domain",
+    "keySignatureFifths": 2,
+    "timeSignature": {
+      "numerator": 6,
+      "denominator": 8
+    }
+  },
+  {
+    "id": "brahms-lullaby",
+    "title": "Brahms's Lullaby (Wiegenlied), Op. 49 No. 4",
+    "composer": "Johannes Brahms",
+    "difficultyLevel": 3,
+    "midiFile": "/songs/brahms-lullaby.mid",
+    "durationSec": 31.9,
+    "minNote": 41,
+    "maxNote": 72,
+    "bpm": 96,
+    "workNumber": "Op. 49 No. 4",
+    "source": "sightread.dev (Public Domain MusicXML)",
+    "license": "Public Domain",
+    "keySignatureFifths": 0,
+    "timeSignature": {
+      "numerator": 3,
+      "denominator": 4
+    }
+  },
+  {
+    "id": "brahms-waltz-op39-no15",
+    "title": "16 Waltzes, Op. 39 No. 15 — Waltz in A-flat major",
+    "composer": "Johannes Brahms",
+    "difficultyLevel": 7,
+    "midiFile": "/songs/brahms-waltz-op39-no15.mid",
+    "durationSec": 68.3,
+    "minNote": 32,
+    "maxNote": 92,
+    "bpm": 116,
+    "workTitle": "16 Waltzes",
+    "workNumber": "Op. 39 No. 15",
+    "source": "sightread.dev (Public Domain MusicXML)",
+    "license": "Public Domain",
+    "keySignatureFifths": -4,
+    "timeSignature": {
+      "numerator": 3,
+      "denominator": 4
+    }
+  },
+  {
+    "id": "burgmuller-arabesque",
+    "title": "25 Études faciles, Op. 100 No. 2 — L'Arabesque",
+    "composer": "Friedrich Burgmüller",
+    "difficultyLevel": 5,
+    "midiFile": "/songs/burgmuller-arabesque.mid",
+    "durationSec": 26.1,
+    "minNote": 45,
+    "maxNote": 93,
+    "bpm": 152,
+    "workTitle": "25 Études faciles",
+    "workNumber": "Op. 100 No. 2",
+    "source": "sightread.dev (Public Domain MusicXML)",
+    "license": "Public Domain",
+    "keySignatureFifths": 0,
+    "timeSignature": {
+      "numerator": 2,
+      "denominator": 4
+    }
+  },
+  {
+    "id": "burgmuller-ballade",
+    "title": "25 Études faciles, Op. 100 No. 15 — Ballade",
+    "composer": "Friedrich Burgmüller",
+    "difficultyLevel": 5,
+    "midiFile": "/songs/burgmuller-ballade.mid",
+    "durationSec": 83.1,
+    "minNote": 43,
+    "maxNote": 96,
+    "bpm": 104,
+    "workTitle": "25 Études faciles",
+    "workNumber": "Op. 100 No. 15",
+    "source": "sightread.dev (Public Domain MusicXML)",
+    "license": "Public Domain",
+    "keySignatureFifths": -3,
+    "timeSignature": {
+      "numerator": 3,
+      "denominator": 8
+    }
+  },
+  {
+    "id": "canon-in-d",
+    "title": "Canon and Gigue in D major, P. 37 — Canon in D",
+    "composer": "Johann Pachelbel",
+    "difficultyLevel": 3,
+    "midiFile": "/songs/canon-in-d.mid",
+    "durationSec": 117.6,
+    "minNote": 38,
+    "maxNote": 86,
+    "bpm": 100,
+    "workTitle": "Canon and Gigue in D major",
+    "workNumber": "P. 37",
+    "source": "sightread.dev (Public Domain MusicXML)",
+    "license": "Public Domain",
+    "keySignatureFifths": 2,
+    "timeSignature": {
+      "numerator": 4,
+      "denominator": 4
+    }
+  },
+  {
+    "id": "canon-in-d-easy",
+    "title": "Canon and Gigue in D major, P. 37 — Canon in D (easy)",
+    "composer": "Johann Pachelbel",
+    "difficultyLevel": 1,
+    "midiFile": "/songs/canon-in-d-easy.mid",
+    "durationSec": 64,
+    "minNote": 42,
+    "maxNote": 81,
+    "bpm": 60,
+    "workTitle": "Canon and Gigue in D major",
+    "workNumber": "P. 37",
+    "source": "sightread.dev (Public Domain MusicXML)",
+    "license": "Public Domain",
+    "keySignatureFifths": 2,
+    "timeSignature": {
+      "numerator": 4,
+      "denominator": 4
+    }
+  },
+  {
+    "id": "chopin-prelude-op28-no15",
+    "title": "24 Preludes, Op. 28 No. 15 — Prelude in D-flat major “Raindrop”",
+    "composer": "Frédéric Chopin",
+    "difficultyLevel": 7,
+    "midiFile": "/songs/chopin-prelude-op28-no15.mid",
+    "durationSec": 267,
+    "minNote": 28,
+    "maxNote": 82,
+    "bpm": 80,
+    "workTitle": "24 Preludes",
+    "workNumber": "Op. 28 No. 15",
+    "source": "sightread.dev (Public Domain MusicXML)",
+    "license": "Public Domain",
+    "keySignatureFifths": -5,
+    "timeSignature": {
+      "numerator": 4,
+      "denominator": 4
+    }
+  },
+  {
+    "id": "chopin-prelude-op28-no4",
+    "title": "24 Preludes, Op. 28 No. 4 — Prelude in E minor",
+    "composer": "Frédéric Chopin",
+    "difficultyLevel": 6,
+    "midiFile": "/songs/chopin-prelude-op28-no4.mid",
+    "durationSec": 108.2,
+    "minNote": 28,
+    "maxNote": 84,
+    "bpm": 56,
+    "workTitle": "24 Preludes",
+    "workNumber": "Op. 28 No. 4",
+    "source": "sightread.dev (Public Domain MusicXML)",
+    "license": "Public Domain",
+    "keySignatureFifths": 1,
+    "timeSignature": {
+      "numerator": 2,
+      "denominator": 2
+    }
+  },
+  {
+    "id": "chopin-prelude-op28-no7",
+    "title": "24 Preludes, Op. 28 No. 7 — Prelude in A major",
+    "composer": "Frédéric Chopin",
+    "difficultyLevel": 6,
+    "midiFile": "/songs/chopin-prelude-op28-no7.mid",
+    "durationSec": 44.5,
+    "minNote": 33,
+    "maxNote": 85,
+    "bpm": 66,
+    "workTitle": "24 Preludes",
+    "workNumber": "Op. 28 No. 7",
+    "source": "sightread.dev (Public Domain MusicXML)",
+    "license": "Public Domain",
+    "keySignatureFifths": 3,
+    "timeSignature": {
+      "numerator": 3,
+      "denominator": 4
+    }
+  },
+  {
+    "id": "chopin-waltz-b150",
+    "title": "Waltz in A minor, B. 150",
+    "composer": "Frédéric Chopin",
+    "difficultyLevel": 4,
+    "midiFile": "/songs/chopin-waltz-b150.mid",
+    "durationSec": 109,
+    "minNote": 33,
+    "maxNote": 100,
+    "bpm": 93,
+    "workNumber": "B. 150",
+    "source": "sightread.dev (Public Domain MusicXML)",
+    "license": "Public Domain",
+    "keySignatureFifths": 0,
+    "timeSignature": {
+      "numerator": 3,
+      "denominator": 4
+    }
+  },
+  {
+    "id": "clair-de-lune",
+    "title": "Suite bergamasque, L. 75 — III. Clair de Lune",
+    "composer": "Claude Debussy",
+    "difficultyLevel": 6,
+    "midiFile": "/songs/clair-de-lune.mid",
+    "durationSec": 281.7,
+    "minNote": 27,
+    "maxNote": 97,
+    "bpm": 69,
+    "workTitle": "Suite bergamasque",
+    "workNumber": "L. 75",
+    "movementNumber": "III",
+    "source": "sightread.dev (Public Domain MusicXML)",
+    "license": "Public Domain",
+    "keySignatureFifths": -5,
+    "timeSignature": {
+      "numerator": 9,
+      "denominator": 8
+    }
+  },
+  {
+    "id": "clementi-sonatina-op36-no1",
+    "title": "Sonatina in C major, Op. 36 No. 1 — I. Allegro",
+    "composer": "Muzio Clementi",
+    "difficultyLevel": 3,
+    "midiFile": "/songs/clementi-sonatina-op36-no1.mid",
+    "durationSec": 58.5,
+    "minNote": 36,
+    "maxNote": 86,
+    "bpm": 156,
+    "workTitle": "Sonatina in C major",
+    "workNumber": "Op. 36 No. 1",
+    "movementNumber": "I",
+    "source": "sightread.dev (Public Domain MusicXML)",
+    "license": "Public Domain",
+    "keySignatureFifths": 0,
+    "timeSignature": {
+      "numerator": 2,
+      "denominator": 2
+    }
+  },
+  {
+    "id": "drunken-sailor",
+    "title": "Drunken Sailor",
+    "composer": "Trad.",
+    "difficultyLevel": 3,
+    "midiFile": "/songs/drunken-sailor.mid",
+    "durationSec": 16.2,
+    "minNote": 36,
+    "maxNote": 74,
+    "bpm": 126,
+    "source": "sightread.dev (Public Domain MusicXML)",
+    "license": "Public Domain",
+    "keySignatureFifths": 0,
+    "timeSignature": {
+      "numerator": 2,
+      "denominator": 4
+    }
+  },
+  {
+    "id": "drunken-sailor-fife",
+    "title": "Drunken Sailor (fife setting)",
+    "composer": "Trad.",
+    "difficultyLevel": 4,
+    "midiFile": "/songs/drunken-sailor-fife.mid",
+    "durationSec": 14.8,
+    "minNote": 36,
+    "maxNote": 81,
+    "bpm": 132,
+    "source": "sightread.dev (Public Domain MusicXML)",
+    "license": "Public Domain",
+    "keySignatureFifths": 1,
+    "timeSignature": {
+      "numerator": 2,
+      "denominator": 4
+    }
+  },
+  {
+    "id": "fantaisie-impromptu",
+    "title": "Fantaisie-Impromptu, Op. 66",
+    "composer": "Frédéric Chopin",
+    "difficultyLevel": 10,
+    "midiFile": "/songs/fantaisie-impromptu.mid",
+    "durationSec": 253.5,
+    "minNote": 31,
+    "maxNote": 100,
+    "bpm": 168,
+    "workNumber": "Op. 66",
+    "source": "sightread.dev (Public Domain MusicXML)",
+    "license": "Public Domain",
+    "keySignatureFifths": 4,
+    "timeSignature": {
+      "numerator": 4,
+      "denominator": 4
+    }
+  },
+  {
+    "id": "frere-jacques",
+    "title": "Frère Jacques",
+    "composer": "Trad.",
+    "difficultyLevel": 1,
+    "midiFile": "/songs/frere-jacques.mid",
+    "durationSec": 19.2,
+    "minNote": 43,
+    "maxNote": 69,
+    "bpm": 100,
+    "source": "sightread.dev (Public Domain MusicXML)",
+    "license": "Public Domain",
+    "keySignatureFifths": 0,
+    "timeSignature": {
+      "numerator": 4,
+      "denominator": 4
+    }
+  },
+  {
+    "id": "fur-elise",
+    "title": "Für Elise, WoO 59",
+    "composer": "Ludwig van Beethoven",
+    "difficultyLevel": 6,
+    "midiFile": "/songs/fur-elise.mid",
+    "durationSec": 130.8,
+    "minNote": 33,
+    "maxNote": 100,
+    "bpm": 72,
+    "workNumber": "WoO 59",
+    "source": "sightread.dev (Public Domain MusicXML)",
+    "license": "Public Domain",
+    "keySignatureFifths": 0,
+    "timeSignature": {
+      "numerator": 3,
+      "denominator": 8
+    }
+  },
+  {
+    "id": "fur-elise-easy",
+    "title": "Für Elise (easy), WoO 59",
+    "composer": "Ludwig van Beethoven",
+    "difficultyLevel": 2,
+    "midiFile": "/songs/fur-elise-easy.mid",
+    "durationSec": 21.3,
+    "minNote": 40,
+    "maxNote": 76,
+    "bpm": 72,
+    "workNumber": "WoO 59",
+    "source": "sightread.dev (Public Domain MusicXML)",
+    "license": "Public Domain",
+    "keySignatureFifths": 0,
+    "timeSignature": {
+      "numerator": 3,
+      "denominator": 8
+    }
+  },
+  {
+    "id": "gnossienne-no1",
+    "title": "Gnossienne No. 1",
+    "composer": "Erik Satie",
+    "difficultyLevel": 4,
+    "midiFile": "/songs/gnossienne-no1.mid",
+    "durationSec": 273.3,
+    "minNote": 34,
+    "maxNote": 83,
+    "bpm": 72,
+    "source": "sightread.dev (Public Domain MusicXML)",
+    "license": "Public Domain",
+    "keySignatureFifths": -4,
+    "timeSignature": {
+      "numerator": 16,
+      "denominator": 4
+    }
+  },
+  {
+    "id": "god-save-the-king",
+    "title": "God Save the King",
+    "composer": "Trad.",
+    "difficultyLevel": 3,
+    "midiFile": "/songs/god-save-the-king.mid",
+    "durationSec": 25.2,
+    "minNote": 38,
+    "maxNote": 71,
+    "bpm": 100,
+    "source": "sightread.dev (Public Domain MusicXML)",
+    "license": "Public Domain",
+    "keySignatureFifths": 2,
+    "timeSignature": {
+      "numerator": 3,
+      "denominator": 4
+    }
+  },
+  {
+    "id": "greensleeves",
+    "title": "Greensleeves",
+    "composer": "Trad.",
+    "difficultyLevel": 3,
+    "midiFile": "/songs/greensleeves.mid",
+    "durationSec": 61.2,
+    "minNote": 40,
+    "maxNote": 79,
+    "bpm": 100,
+    "source": "sightread.dev (Public Domain MusicXML)",
+    "license": "Public Domain",
+    "keySignatureFifths": 0,
+    "timeSignature": {
+      "numerator": 3,
+      "denominator": 4
+    }
+  },
+  {
+    "id": "grieg-arietta",
+    "title": "Lyric Pieces, Book I, Op. 12 No. 1 — Arietta",
+    "composer": "Edvard Grieg",
+    "difficultyLevel": 5,
+    "midiFile": "/songs/grieg-arietta.mid",
+    "durationSec": 42.3,
+    "minNote": 39,
+    "maxNote": 79,
+    "bpm": 66,
+    "workTitle": "Lyric Pieces, Book I",
+    "workNumber": "Op. 12 No. 1",
+    "source": "sightread.dev (Public Domain MusicXML)",
+    "license": "Public Domain",
+    "keySignatureFifths": -3,
+    "timeSignature": {
+      "numerator": 2,
+      "denominator": 4
+    }
+  },
+  {
+    "id": "gymnopedie-no1",
+    "title": "Gymnopédie No. 1",
+    "composer": "Erik Satie",
+    "difficultyLevel": 4,
+    "midiFile": "/songs/gymnopedie-no1.mid",
+    "durationSec": 141,
+    "minNote": 33,
+    "maxNote": 81,
+    "bpm": 60,
+    "source": "sightread.dev (Public Domain MusicXML)",
+    "license": "Public Domain",
+    "keySignatureFifths": 2,
+    "timeSignature": {
+      "numerator": 3,
+      "denominator": 4
+    }
+  },
+  {
+    "id": "happy-birthday",
+    "title": "Happy Birthday",
+    "composer": "Mildred J. Hill",
+    "difficultyLevel": 2,
+    "midiFile": "/songs/happy-birthday.mid",
+    "durationSec": 14.5,
+    "minNote": 48,
+    "maxNote": 74,
+    "bpm": 112,
+    "source": "sightread.dev (Public Domain MusicXML)",
+    "license": "Public Domain",
+    "keySignatureFifths": 1,
+    "timeSignature": {
+      "numerator": 3,
+      "denominator": 4
+    }
+  },
+  {
+    "id": "hot-cross-buns",
+    "title": "Hot Cross Buns",
+    "composer": "Trad.",
+    "difficultyLevel": 2,
+    "midiFile": "/songs/hot-cross-buns.mid",
+    "durationSec": 10,
+    "minNote": 43,
+    "maxNote": 64,
+    "bpm": 96,
+    "source": "sightread.dev (Public Domain MusicXML)",
+    "license": "Public Domain",
+    "keySignatureFifths": 0,
+    "timeSignature": {
+      "numerator": 2,
+      "denominator": 4
+    }
+  },
+  {
+    "id": "in-the-hall-of-the-mountain-king",
+    "title": "Peer Gynt Suite No. 1, Op. 46 No. 4 — In the Hall of the Mountain King",
+    "composer": "Edvard Grieg",
+    "difficultyLevel": 8,
+    "midiFile": "/songs/in-the-hall-of-the-mountain-king.mid",
+    "durationSec": 146,
+    "minNote": 23,
+    "maxNote": 99,
+    "bpm": 138,
+    "workTitle": "Peer Gynt Suite No. 1",
+    "workNumber": "Op. 46 No. 4",
+    "source": "sightread.dev (Public Domain MusicXML)",
+    "license": "Public Domain",
+    "keySignatureFifths": 2,
+    "timeSignature": {
+      "numerator": 4,
+      "denominator": 4
+    }
+  },
+  {
+    "id": "invention-no-1",
+    "title": "Invention No. 1 in C major, BWV 772",
+    "composer": "Johann Sebastian Bach",
+    "difficultyLevel": 4,
+    "midiFile": "/songs/invention-no-1.mid",
+    "durationSec": 66,
+    "minNote": 36,
+    "maxNote": 84,
+    "bpm": 80,
+    "workNumber": "BWV 772",
+    "source": "sightread.dev (Public Domain MusicXML)",
+    "license": "Public Domain",
+    "keySignatureFifths": 0,
+    "timeSignature": {
+      "numerator": 4,
+      "denominator": 4
+    }
+  },
+  {
+    "id": "jingle-bells",
+    "title": "Jingle Bells",
+    "composer": "James Lord Pierpont",
+    "difficultyLevel": 2,
+    "midiFile": "/songs/jingle-bells.mid",
+    "durationSec": 34.3,
+    "minNote": 43,
+    "maxNote": 76,
+    "bpm": 112,
+    "source": "sightread.dev (Public Domain MusicXML)",
+    "license": "Public Domain",
+    "keySignatureFifths": 1,
+    "timeSignature": {
+      "numerator": 4,
+      "denominator": 4
+    }
+  },
+  {
+    "id": "la-candeur",
+    "title": "25 Études faciles, Op. 100 No. 1 — La Candeur",
+    "composer": "Friedrich Burgmüller",
+    "difficultyLevel": 4,
+    "midiFile": "/songs/la-candeur.mid",
+    "durationSec": 36.3,
+    "minNote": 47,
+    "maxNote": 84,
+    "bpm": 152,
+    "workTitle": "25 Études faciles",
+    "workNumber": "Op. 100 No. 1",
+    "source": "sightread.dev (Public Domain MusicXML)",
+    "license": "Public Domain",
+    "keySignatureFifths": 0,
+    "timeSignature": {
+      "numerator": 4,
+      "denominator": 4
+    }
+  },
+  {
+    "id": "lieber-augustin",
+    "title": "O du lieber Augustin",
+    "composer": "Trad.",
+    "difficultyLevel": 1,
+    "midiFile": "/songs/lieber-augustin.mid",
+    "durationSec": 27.7,
+    "minNote": 50,
+    "maxNote": 76,
+    "bpm": 104,
+    "source": "sightread.dev (Public Domain MusicXML)",
+    "license": "Public Domain",
+    "keySignatureFifths": 1,
+    "timeSignature": {
+      "numerator": 3,
+      "denominator": 4
+    }
+  },
+  {
+    "id": "maple-leaf-rag",
+    "title": "Maple Leaf Rag",
+    "composer": "Scott Joplin",
+    "difficultyLevel": 8,
+    "midiFile": "/songs/maple-leaf-rag.mid",
+    "durationSec": 101.1,
+    "minNote": 32,
+    "maxNote": 92,
+    "bpm": 100,
+    "source": "sightread.dev (Public Domain MusicXML)",
+    "license": "Public Domain",
+    "keySignatureFifths": -4,
+    "timeSignature": {
+      "numerator": 2,
+      "denominator": 4
+    }
+  },
+  {
+    "id": "mary-had-a-little-lamb",
+    "title": "Mary Had a Little Lamb",
+    "composer": "Trad.",
+    "difficultyLevel": 1,
+    "midiFile": "/songs/mary-had-a-little-lamb.mid",
+    "durationSec": 20.9,
+    "minNote": 43,
+    "maxNote": 67,
+    "bpm": 92,
+    "source": "sightread.dev (Public Domain MusicXML)",
+    "license": "Public Domain",
+    "keySignatureFifths": 0,
+    "timeSignature": {
+      "numerator": 4,
+      "denominator": 4
+    }
+  },
+  {
+    "id": "merry-farmer",
+    "title": "Album for the Young, Op. 68 No. 10 — The Merry Farmer",
+    "composer": "Robert Schumann",
+    "difficultyLevel": 5,
+    "midiFile": "/songs/merry-farmer.mid",
+    "durationSec": 42.4,
+    "minNote": 46,
+    "maxNote": 77,
+    "bpm": 114,
+    "workTitle": "Album for the Young",
+    "workNumber": "Op. 68 No. 10",
+    "source": "sightread.dev (Public Domain MusicXML)",
+    "license": "Public Domain",
+    "keySignatureFifths": -1,
+    "timeSignature": {
+      "numerator": 4,
+      "denominator": 4
+    }
+  },
+  {
+    "id": "minuet-in-g-major",
+    "title": "Notebook for Anna Magdalena Bach, BWV Anh. 114 — Minuet in G Major",
+    "composer": "Christian Petzold",
+    "difficultyLevel": 4,
+    "midiFile": "/songs/minuet-in-g-major.mid",
+    "durationSec": 48,
+    "minNote": 43,
+    "maxNote": 83,
+    "bpm": 120,
+    "workTitle": "Notebook for Anna Magdalena Bach",
+    "workNumber": "BWV Anh. 114",
+    "source": "sightread.dev (Public Domain MusicXML)",
+    "license": "Public Domain",
+    "keySignatureFifths": 1,
+    "timeSignature": {
+      "numerator": 3,
+      "denominator": 4
+    }
+  },
+  {
+    "id": "minute-waltz",
+    "title": "Waltzes, Op. 64 No. 1 — Waltz in D-flat major “Minute”",
+    "composer": "Frédéric Chopin",
+    "difficultyLevel": 10,
+    "midiFile": "/songs/minute-waltz.mid",
+    "durationSec": 80.4,
+    "minNote": 36,
+    "maxNote": 101,
+    "bpm": 280,
+    "workTitle": "Waltzes",
+    "workNumber": "Op. 64 No. 1",
+    "source": "sightread.dev (Public Domain MusicXML)",
+    "license": "Public Domain",
+    "keySignatureFifths": -5,
+    "timeSignature": {
+      "numerator": 3,
+      "denominator": 4
+    }
+  },
+  {
+    "id": "molly-malone",
+    "title": "Molly Malone",
+    "composer": "Trad.",
+    "difficultyLevel": 2,
+    "midiFile": "/songs/molly-malone.mid",
+    "durationSec": 28,
+    "minNote": 38,
+    "maxNote": 74,
+    "bpm": 104,
+    "source": "sightread.dev (Public Domain MusicXML)",
+    "license": "Public Domain",
+    "keySignatureFifths": 1,
+    "timeSignature": {
+      "numerator": 6,
+      "denominator": 8
+    }
   },
   {
     "id": "moonlight-sonata",
-    "title": "Moonlight Sonata (1st Mvt. Excerpt)",
+    "title": "Piano Sonata No. 14 “Moonlight”, Op. 27 No. 2 — I. Adagio sostenuto",
     "composer": "Ludwig van Beethoven",
-    "difficultyLevel": 9,
+    "difficultyLevel": 5,
     "midiFile": "/songs/moonlight-sonata.mid",
-    "durationSec": 18.5,
-    "minNote": 30,
-    "maxNote": 68,
-    "bpm": 64,
-    "description": "Sustained bass octaves beneath continuous triplet arpeggios and upper voice."
+    "durationSec": 368,
+    "minNote": 29,
+    "maxNote": 87,
+    "bpm": 45,
+    "workTitle": "Piano Sonata No. 14 “Moonlight”",
+    "workNumber": "Op. 27 No. 2",
+    "movementNumber": "I",
+    "source": "sightread.dev (Public Domain MusicXML)",
+    "license": "Public Domain",
+    "keySignatureFifths": 4,
+    "timeSignature": {
+      "numerator": 4,
+      "denominator": 4
+    }
   },
   {
-    "id": "turkish-march",
-    "title": "Rondo Alla Turca (Excerpt)",
+    "id": "morning-mood",
+    "title": "Peer Gynt Suite No. 1, Op. 46 No. 1 — Morning Mood",
+    "composer": "Edvard Grieg",
+    "difficultyLevel": 4,
+    "midiFile": "/songs/morning-mood.mid",
+    "durationSec": 20.5,
+    "minNote": 40,
+    "maxNote": 83,
+    "bpm": 88,
+    "workTitle": "Peer Gynt Suite No. 1",
+    "workNumber": "Op. 46 No. 1",
+    "source": "sightread.dev (Public Domain MusicXML)",
+    "license": "Public Domain",
+    "keySignatureFifths": 1,
+    "timeSignature": {
+      "numerator": 6,
+      "denominator": 8
+    }
+  },
+  {
+    "id": "musette-in-d-major",
+    "title": "Notebook for Anna Magdalena Bach, BWV Anh. 126 — Musette in D Major",
+    "composer": "Anonymous",
+    "difficultyLevel": 4,
+    "midiFile": "/songs/musette-in-d-major.mid",
+    "durationSec": 30,
+    "minNote": 38,
+    "maxNote": 81,
+    "bpm": 112,
+    "workTitle": "Notebook for Anna Magdalena Bach",
+    "workNumber": "BWV Anh. 126",
+    "source": "sightread.dev (Public Domain MusicXML)",
+    "license": "Public Domain",
+    "keySignatureFifths": 2,
+    "timeSignature": {
+      "numerator": 2,
+      "denominator": 4
+    }
+  },
+  {
+    "id": "nocturne-op9-no2",
+    "title": "Nocturnes, Op. 9 No. 2 — Nocturne in E-flat major",
+    "composer": "Frédéric Chopin",
+    "difficultyLevel": 7,
+    "midiFile": "/songs/nocturne-op9-no2.mid",
+    "durationSec": 193.1,
+    "minNote": 32,
+    "maxNote": 99,
+    "bpm": 66,
+    "workTitle": "Nocturnes",
+    "workNumber": "Op. 9 No. 2",
+    "source": "sightread.dev (Public Domain MusicXML)",
+    "license": "Public Domain",
+    "keySignatureFifths": -3,
+    "timeSignature": {
+      "numerator": 12,
+      "denominator": 8
+    }
+  },
+  {
+    "id": "o-tannenbaum",
+    "title": "O Tannenbaum",
+    "composer": "Trad.",
+    "difficultyLevel": 2,
+    "midiFile": "/songs/o-tannenbaum.mid",
+    "durationSec": 23.1,
+    "minNote": 48,
+    "maxNote": 76,
+    "bpm": 96,
+    "source": "sightread.dev (Public Domain MusicXML)",
+    "license": "Public Domain",
+    "keySignatureFifths": 1,
+    "timeSignature": {
+      "numerator": 3,
+      "denominator": 4
+    }
+  },
+  {
+    "id": "ode-to-joy",
+    "title": "Symphony No. 9 in D minor, Op. 125 — IV. Ode to Joy",
+    "composer": "Ludwig van Beethoven",
+    "difficultyLevel": 2,
+    "midiFile": "/songs/ode-to-joy.mid",
+    "durationSec": 34.3,
+    "minNote": 50,
+    "maxNote": 74,
+    "bpm": 112,
+    "workTitle": "Symphony No. 9 in D minor",
+    "workNumber": "Op. 125",
+    "movementNumber": "IV",
+    "source": "sightread.dev (Public Domain MusicXML)",
+    "license": "Public Domain",
+    "keySignatureFifths": 1,
+    "timeSignature": {
+      "numerator": 4,
+      "denominator": 4
+    }
+  },
+  {
+    "id": "old-french-song",
+    "title": "Album for the Young, Op. 39 No. 16 — Old French Song",
+    "composer": "Pyotr Ilyich Tchaikovsky",
+    "difficultyLevel": 5,
+    "midiFile": "/songs/old-french-song.mid",
+    "durationSec": 52.1,
+    "minNote": 43,
+    "maxNote": 77,
+    "bpm": 76,
+    "workTitle": "Album for the Young",
+    "workNumber": "Op. 39 No. 16",
+    "source": "sightread.dev (Public Domain MusicXML)",
+    "license": "Public Domain",
+    "keySignatureFifths": -2,
+    "timeSignature": {
+      "numerator": 2,
+      "denominator": 4
+    }
+  },
+  {
+    "id": "pathetique-mvt2",
+    "title": "Piano Sonata No. 8 “Pathétique”, Op. 13 — II. Adagio cantabile",
+    "composer": "Ludwig van Beethoven",
+    "difficultyLevel": 6,
+    "midiFile": "/songs/pathetique-mvt2.mid",
+    "durationSec": 243.3,
+    "minNote": 29,
+    "maxNote": 89,
+    "bpm": 36,
+    "workTitle": "Piano Sonata No. 8 “Pathétique”",
+    "workNumber": "Op. 13",
+    "movementNumber": "II",
+    "source": "sightread.dev (Public Domain MusicXML)",
+    "license": "Public Domain",
+    "keySignatureFifths": -4,
+    "timeSignature": {
+      "numerator": 2,
+      "denominator": 4
+    }
+  },
+  {
+    "id": "prelude-in-c-wtc1",
+    "title": "The Well-Tempered Clavier, Book I, BWV 846 — Prelude in C major",
+    "composer": "Johann Sebastian Bach",
+    "difficultyLevel": 4,
+    "midiFile": "/songs/prelude-in-c-wtc1.mid",
+    "durationSec": 140,
+    "minNote": 36,
+    "maxNote": 81,
+    "bpm": 60,
+    "workTitle": "The Well-Tempered Clavier, Book I",
+    "workNumber": "BWV 846",
+    "source": "sightread.dev (Public Domain MusicXML)",
+    "license": "Public Domain",
+    "keySignatureFifths": 0,
+    "timeSignature": {
+      "numerator": 4,
+      "denominator": 4
+    }
+  },
+  {
+    "id": "reverie",
+    "title": "Rêverie, L. 68",
+    "composer": "Claude Debussy",
+    "difficultyLevel": 5,
+    "midiFile": "/songs/reverie.mid",
+    "durationSec": 268.7,
+    "minNote": 26,
+    "maxNote": 93,
+    "bpm": 90,
+    "workNumber": "L. 68",
+    "source": "sightread.dev (Public Domain MusicXML)",
+    "license": "Public Domain",
+    "keySignatureFifths": -1,
+    "timeSignature": {
+      "numerator": 4,
+      "denominator": 4
+    }
+  },
+  {
+    "id": "rondo-alla-turca",
+    "title": "Piano Sonata No. 11, K. 331 — III. Rondo Alla Turca",
     "composer": "Wolfgang Amadeus Mozart",
-    "difficultyLevel": 10,
-    "midiFile": "/songs/turkish-march.mid",
-    "durationSec": 7,
-    "minNote": 45,
+    "difficultyLevel": 7,
+    "midiFile": "/songs/rondo-alla-turca.mid",
+    "durationSec": 128,
+    "minNote": 38,
+    "maxNote": 88,
+    "bpm": 120,
+    "workTitle": "Piano Sonata No. 11",
+    "workNumber": "K. 331",
+    "movementNumber": "III",
+    "source": "sightread.dev (Public Domain MusicXML)",
+    "license": "Public Domain",
+    "keySignatureFifths": 0,
+    "timeSignature": {
+      "numerator": 2,
+      "denominator": 4
+    }
+  },
+  {
+    "id": "sailors-hornpipe",
+    "title": "Sailor's Hornpipe",
+    "composer": "Trad.",
+    "difficultyLevel": 4,
+    "midiFile": "/songs/sailors-hornpipe.mid",
+    "durationSec": 17.8,
+    "minNote": 36,
     "maxNote": 84,
-    "bpm": 132,
-    "description": "Brisk 16th-note runs and crisp staccato accompaniment demanding agile technique."
+    "bpm": 116,
+    "source": "sightread.dev (Public Domain MusicXML)",
+    "license": "Public Domain",
+    "keySignatureFifths": 0,
+    "timeSignature": {
+      "numerator": 2,
+      "denominator": 4
+    }
+  },
+  {
+    "id": "scarborough-fair",
+    "title": "Scarborough Fair",
+    "composer": "Trad.",
+    "difficultyLevel": 2,
+    "midiFile": "/songs/scarborough-fair.mid",
+    "durationSec": 30,
+    "minNote": 50,
+    "maxNote": 74,
+    "bpm": 96,
+    "source": "sightread.dev (Public Domain MusicXML)",
+    "license": "Public Domain",
+    "keySignatureFifths": 1,
+    "timeSignature": {
+      "numerator": 3,
+      "denominator": 4
+    }
+  },
+  {
+    "id": "schumann-melody",
+    "title": "Album for the Young, Op. 68 No. 1 — Melodie",
+    "composer": "Robert Schumann",
+    "difficultyLevel": 4,
+    "midiFile": "/songs/schumann-melody.mid",
+    "durationSec": 40,
+    "minNote": 55,
+    "maxNote": 81,
+    "bpm": 120,
+    "workTitle": "Album for the Young",
+    "workNumber": "Op. 68 No. 1",
+    "source": "sightread.dev (Public Domain MusicXML)",
+    "license": "Public Domain",
+    "keySignatureFifths": 0,
+    "timeSignature": {
+      "numerator": 4,
+      "denominator": 4
+    }
+  },
+  {
+    "id": "silent-night",
+    "title": "Silent Night",
+    "composer": "Franz Gruber",
+    "difficultyLevel": 2,
+    "midiFile": "/songs/silent-night.mid",
+    "durationSec": 36,
+    "minNote": 43,
+    "maxNote": 77,
+    "bpm": 60,
+    "source": "sightread.dev (Public Domain MusicXML)",
+    "license": "Public Domain",
+    "keySignatureFifths": 0,
+    "timeSignature": {
+      "numerator": 6,
+      "denominator": 8
+    }
+  },
+  {
+    "id": "standchen",
+    "title": "Schwanengesang, D. 957 No. 4 — Ständchen (Serenade)",
+    "composer": "Franz Schubert",
+    "difficultyLevel": 7,
+    "midiFile": "/songs/standchen.mid",
+    "durationSec": 147.6,
+    "minNote": 29,
+    "maxNote": 83,
+    "bpm": 100,
+    "workTitle": "Schwanengesang",
+    "workNumber": "D. 957 No. 4",
+    "source": "sightread.dev (Public Domain MusicXML)",
+    "license": "Public Domain",
+    "keySignatureFifths": -1,
+    "timeSignature": {
+      "numerator": 3,
+      "denominator": 4
+    }
+  },
+  {
+    "id": "star-spangled-banner",
+    "title": "The Star-Spangled Banner",
+    "composer": "Trad.",
+    "difficultyLevel": 3,
+    "midiFile": "/songs/star-spangled-banner.mid",
+    "durationSec": 49.6,
+    "minNote": 38,
+    "maxNote": 81,
+    "bpm": 92,
+    "source": "sightread.dev (Public Domain MusicXML)",
+    "license": "Public Domain",
+    "keySignatureFifths": 2,
+    "timeSignature": {
+      "numerator": 3,
+      "denominator": 4
+    }
+  },
+  {
+    "id": "swan-lake",
+    "title": "Swan Lake, Op. 20 — Swan Lake Theme",
+    "composer": "Pyotr Ilyich Tchaikovsky",
+    "difficultyLevel": 3,
+    "midiFile": "/songs/swan-lake.mid",
+    "durationSec": 76.8,
+    "minNote": 48,
+    "maxNote": 85,
+    "bpm": 100,
+    "workTitle": "Swan Lake",
+    "workNumber": "Op. 20",
+    "source": "sightread.dev (Public Domain MusicXML)",
+    "license": "Public Domain",
+    "keySignatureFifths": 2,
+    "timeSignature": {
+      "numerator": 4,
+      "denominator": 4
+    }
+  },
+  {
+    "id": "the-entertainer",
+    "title": "The Entertainer",
+    "composer": "Scott Joplin",
+    "difficultyLevel": 3,
+    "midiFile": "/songs/the-entertainer.mid",
+    "durationSec": 42,
+    "minNote": 36,
+    "maxNote": 88,
+    "bpm": 120,
+    "source": "sightread.dev (Public Domain MusicXML)",
+    "license": "Public Domain",
+    "keySignatureFifths": 0,
+    "timeSignature": {
+      "numerator": 4,
+      "denominator": 4
+    }
+  },
+  {
+    "id": "the-entertainer-complete",
+    "title": "The Entertainer (complete)",
+    "composer": "Scott Joplin",
+    "difficultyLevel": 6,
+    "midiFile": "/songs/the-entertainer-complete.mid",
+    "durationSec": 153.3,
+    "minNote": 29,
+    "maxNote": 90,
+    "bpm": 72,
+    "source": "sightread.dev (Public Domain MusicXML)",
+    "license": "Public Domain",
+    "keySignatureFifths": 0,
+    "timeSignature": {
+      "numerator": 2,
+      "denominator": 4
+    }
+  },
+  {
+    "id": "the-swan",
+    "title": "The Carnival of the Animals, No. 13 — The Swan",
+    "composer": "Camille Saint-Saëns",
+    "difficultyLevel": 4,
+    "midiFile": "/songs/the-swan.mid",
+    "durationSec": 180,
+    "minNote": 35,
+    "maxNote": 86,
+    "bpm": 56,
+    "workTitle": "The Carnival of the Animals",
+    "workNumber": "No. 13",
+    "source": "sightread.dev (Public Domain MusicXML)",
+    "license": "Public Domain",
+    "keySignatureFifths": 1,
+    "timeSignature": {
+      "numerator": 6,
+      "denominator": 4
+    }
+  },
+  {
+    "id": "to-a-wild-rose",
+    "title": "Woodland Sketches, Op. 51 No. 1 — To a Wild Rose",
+    "composer": "Edward MacDowell",
+    "difficultyLevel": 4,
+    "midiFile": "/songs/to-a-wild-rose.mid",
+    "durationSec": 69.5,
+    "minNote": 45,
+    "maxNote": 90,
+    "bpm": 88,
+    "workTitle": "Woodland Sketches",
+    "workNumber": "Op. 51 No. 1",
+    "source": "sightread.dev (Public Domain MusicXML)",
+    "license": "Public Domain",
+    "keySignatureFifths": 3,
+    "timeSignature": {
+      "numerator": 2,
+      "denominator": 4
+    }
+  },
+  {
+    "id": "traumerei",
+    "title": "Kinderszenen, Op. 15 No. 7 — Träumerei",
+    "composer": "Robert Schumann",
+    "difficultyLevel": 5,
+    "midiFile": "/songs/traumerei.mid",
+    "durationSec": 110.7,
+    "minNote": 34,
+    "maxNote": 82,
+    "bpm": 60,
+    "workTitle": "Kinderszenen",
+    "workNumber": "Op. 15 No. 7",
+    "source": "sightread.dev (Public Domain MusicXML)",
+    "license": "Public Domain",
+    "keySignatureFifths": -1,
+    "timeSignature": {
+      "numerator": 4,
+      "denominator": 4
+    }
+  },
+  {
+    "id": "twinkle-twinkle-little-star",
+    "title": "Twinkle Twinkle Little Star",
+    "composer": "Trad.",
+    "difficultyLevel": 1,
+    "midiFile": "/songs/twinkle-twinkle-little-star.mid",
+    "durationSec": 36,
+    "minNote": 48,
+    "maxNote": 69,
+    "bpm": 80,
+    "source": "sightread.dev (Public Domain MusicXML)",
+    "license": "Public Domain",
+    "keySignatureFifths": 0,
+    "timeSignature": {
+      "numerator": 4,
+      "denominator": 4
+    }
+  },
+  {
+    "id": "venetian-boat-song",
+    "title": "Songs Without Words, Op. 30 No. 6 — Venetian Boat Song",
+    "composer": "Felix Mendelssohn",
+    "difficultyLevel": 7,
+    "midiFile": "/songs/venetian-boat-song.mid",
+    "durationSec": 127.3,
+    "minNote": 33,
+    "maxNote": 88,
+    "bpm": 78,
+    "workTitle": "Songs Without Words",
+    "workNumber": "Op. 30 No. 6",
+    "source": "sightread.dev (Public Domain MusicXML)",
+    "license": "Public Domain",
+    "keySignatureFifths": 3,
+    "timeSignature": {
+      "numerator": 6,
+      "denominator": 8
+    }
+  },
+  {
+    "id": "when-the-saints-go-marching-in",
+    "title": "When the Saints Go Marching In",
+    "composer": "Trad.",
+    "difficultyLevel": 1,
+    "midiFile": "/songs/when-the-saints-go-marching-in.mid",
+    "durationSec": 36.9,
+    "minNote": 41,
+    "maxNote": 67,
+    "bpm": 104,
+    "source": "sightread.dev (Public Domain MusicXML)",
+    "license": "Public Domain",
+    "keySignatureFifths": -1,
+    "timeSignature": {
+      "numerator": 4,
+      "denominator": 4
+    }
+  },
+  {
+    "id": "whittingham-fair",
+    "title": "Whittingham Fair",
+    "composer": "Trad.",
+    "difficultyLevel": 2,
+    "midiFile": "/songs/whittingham-fair.mid",
+    "durationSec": 28.8,
+    "minNote": 50,
+    "maxNote": 76,
+    "bpm": 100,
+    "source": "sightread.dev (Public Domain MusicXML)",
+    "license": "Public Domain",
+    "keySignatureFifths": 1,
+    "timeSignature": {
+      "numerator": 6,
+      "denominator": 8
+    }
+  },
+  {
+    "id": "yankee-doodle",
+    "title": "Yankee Doodle",
+    "composer": "Trad.",
+    "difficultyLevel": 2,
+    "midiFile": "/songs/yankee-doodle.mid",
+    "durationSec": 17.1,
+    "minNote": 50,
+    "maxNote": 79,
+    "bpm": 112,
+    "source": "sightread.dev (Public Domain MusicXML)",
+    "license": "Public Domain",
+    "keySignatureFifths": 2,
+    "timeSignature": {
+      "numerator": 2,
+      "denominator": 4
+    }
   }
 ]

@@ -10,5 +10,5 @@ if (!rootEl) {
 createRoot(rootEl).render(
   <StrictMode>
     <App />
-  </StrictMode>
+  </StrictMode>,
 );

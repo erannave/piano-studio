@@ -8,22 +8,35 @@ import type { FittedSong } from "../shared/types.ts";
 import { useAppStore } from "../store/appStore.ts";
 import { PianoKeyboard } from "./PianoKeyboard.tsx";
 
+function formatDuration(sec: number): string {
+  const s = Math.max(0, Math.round(sec));
+  if (s < 60) return `${s}s`;
+  const mins = Math.floor(s / 60);
+  const rem = s % 60;
+  return `${mins}:${rem.toString().padStart(2, "0")}`;
+}
+
 export function SongLibrary() {
   const songs = useAppStore((s) => s.songs);
   const songsLoading = useAppStore((s) => s.songsLoading);
   const songLoading = useAppStore((s) => s.songLoading);
   const profile = useAppStore((s) => s.profile);
   const activeUserNotes = useAppStore((s) => s.activeUserNotes);
+  const sustainPedalDown = useAppStore((s) => s.sustainPedalDown);
   const selectSong = useAppStore((s) => s.selectSong);
   const openCalibration = useAppStore((s) => s.openCalibration);
 
   const [filterMode, setFilterMode] = useState<"recommended" | "all">("recommended");
+  const [searchQuery, setSearchQuery] = useState("");
   const skillLevel = profile.skillLevel ?? 1;
+
+  // Exclude short calibration-only pieces from the main Song Library
+  const librarySongs = useMemo(() => songs.filter((s) => !s.isCalibrationPiece), [songs]);
 
   const { fittedSongs, excludedCount } = useMemo(() => {
     const fitted: FittedSong[] = [];
     let excluded = 0;
-    for (const song of songs) {
+    for (const song of librarySongs) {
       const fit = fitSongToKeyboardRange(song, profile.keyboardRange);
       if (fit) {
         fitted.push(fit);
@@ -31,19 +44,32 @@ export function SongLibrary() {
         excluded++;
       }
     }
-    fitted.sort((a, b) => a.difficultyLevel - b.difficultyLevel);
+    fitted.sort((a, b) => a.difficultyLevel - b.difficultyLevel || a.title.localeCompare(b.title));
     return { fittedSongs: fitted, excludedCount: excluded };
-  }, [songs, profile.keyboardRange]);
+  }, [librarySongs, profile.keyboardRange]);
 
   const visibleSongs = useMemo(() => {
-    if (filterMode === "all") return fittedSongs;
-    const rec = fittedSongs.filter((s) => Math.abs(s.difficultyLevel - skillLevel) <= 1);
-    return rec.length > 0 ? rec : fittedSongs;
-  }, [fittedSongs, filterMode, skillLevel]);
+    const q = searchQuery.trim().toLowerCase();
+    const base =
+      filterMode === "all" || q.length > 0
+        ? fittedSongs
+        : (() => {
+            const rec = fittedSongs.filter((s) => Math.abs(s.difficultyLevel - skillLevel) <= 1);
+            return rec.length > 0 ? rec : fittedSongs;
+          })();
+
+    if (!q) return base;
+    return base.filter(
+      (s) =>
+        s.title.toLowerCase().includes(q) ||
+        s.composer.toLowerCase().includes(q) ||
+        (s.workTitle?.toLowerCase().includes(q) ?? false),
+    );
+  }, [fittedSongs, filterMode, skillLevel, searchQuery]);
 
   const idleKeyboardRange = useMemo(
     () => computeAutoZoomRange(null, null, profile.keyboardRange),
-    [profile.keyboardRange]
+    [profile.keyboardRange],
   );
 
   return (
@@ -68,13 +94,13 @@ export function SongLibrary() {
           </div>
         )}
 
-        {/* Filter bar */}
-        <div className="flex items-center justify-between gap-4 mb-5">
+        {/* Filter & Search bar */}
+        <div className="flex flex-wrap items-center justify-between gap-4 mb-5">
           <div>
             <h2 className="text-2xl font-bold text-white">Song Library</h2>
             <p className="text-sm text-slate-400">
-              Showing {visibleSongs.length} playable{" "}
-              {visibleSongs.length === 1 ? "song" : "songs"} for your{" "}
+              Showing {visibleSongs.length} of {fittedSongs.length} playable public-domain{" "}
+              {fittedSongs.length === 1 ? "song" : "songs"} for your{" "}
               <span className="font-mono text-slate-300">
                 {midiToNoteName(profile.keyboardRange.minNote)}–
                 {midiToNoteName(profile.keyboardRange.maxNote)}
@@ -89,29 +115,46 @@ export function SongLibrary() {
             </p>
           </div>
 
-          <div className="flex items-center gap-2 bg-slate-900 p-1.5 rounded-2xl border border-slate-800">
-            <button
-              type="button"
-              onClick={() => setFilterMode("recommended")}
-              className={`min-h-[44px] px-5 rounded-xl font-bold text-sm transition cursor-pointer ${
-                filterMode === "recommended"
-                  ? "bg-sky-500 text-slate-950 shadow"
-                  : "text-slate-300 hover:text-white"
-              }`}
-            >
-              Recommended (L{Math.max(1, skillLevel - 1)}–L{Math.min(10, skillLevel + 1)})
-            </button>
-            <button
-              type="button"
-              onClick={() => setFilterMode("all")}
-              className={`min-h-[44px] px-5 rounded-xl font-bold text-sm transition cursor-pointer ${
-                filterMode === "all"
-                  ? "bg-sky-500 text-slate-950 shadow"
-                  : "text-slate-300 hover:text-white"
-              }`}
-            >
-              All Songs ({fittedSongs.length})
-            </button>
+          <div className="flex items-center gap-3">
+            {/* Search input */}
+            <div className="relative">
+              <input
+                type="search"
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                placeholder="Search title or composer…"
+                aria-label="Search songs"
+                className="min-h-[44px] w-60 px-3.5 rounded-xl bg-slate-900 border border-slate-700 text-sm text-white placeholder:text-slate-500 focus:outline-none focus:border-sky-400"
+              />
+            </div>
+
+            <div className="flex items-center gap-1.5 bg-slate-900 p-1 rounded-2xl border border-slate-800">
+              <button
+                type="button"
+                onClick={() => {
+                  setFilterMode("recommended");
+                  setSearchQuery("");
+                }}
+                className={`min-h-[40px] px-4 rounded-xl font-bold text-sm transition cursor-pointer ${
+                  filterMode === "recommended" && !searchQuery
+                    ? "bg-sky-500 text-slate-950 shadow"
+                    : "text-slate-300 hover:text-white"
+                }`}
+              >
+                Recommended (L{Math.max(1, skillLevel - 1)}–L{Math.min(10, skillLevel + 1)})
+              </button>
+              <button
+                type="button"
+                onClick={() => setFilterMode("all")}
+                className={`min-h-[40px] px-4 rounded-xl font-bold text-sm transition cursor-pointer ${
+                  filterMode === "all" || searchQuery
+                    ? "bg-sky-500 text-slate-950 shadow"
+                    : "text-slate-300 hover:text-white"
+                }`}
+              >
+                All Songs ({fittedSongs.length})
+              </button>
+            </div>
           </div>
         </div>
 
@@ -121,15 +164,27 @@ export function SongLibrary() {
         ) : visibleSongs.length === 0 ? (
           <div className="py-16 text-center bg-slate-900 border border-slate-800 rounded-3xl">
             <p className="text-lg text-slate-300 mb-3">
-              No songs fit your current Keyboard Range.
+              {searchQuery
+                ? `No songs match "${searchQuery}".`
+                : "No songs fit your current Keyboard Range."}
             </p>
-            <button
-              type="button"
-              onClick={() => openCalibration("keyboard-range")}
-              className="min-h-[44px] px-5 rounded-xl bg-violet-500 hover:bg-violet-400 text-slate-950 font-bold cursor-pointer"
-            >
-              Adjust Keyboard Range
-            </button>
+            {searchQuery ? (
+              <button
+                type="button"
+                onClick={() => setSearchQuery("")}
+                className="min-h-[44px] px-5 rounded-xl bg-sky-500 hover:bg-sky-400 text-slate-950 font-bold cursor-pointer"
+              >
+                Clear Search
+              </button>
+            ) : (
+              <button
+                type="button"
+                onClick={() => openCalibration("keyboard-range")}
+                className="min-h-[44px] px-5 rounded-xl bg-violet-500 hover:bg-violet-400 text-slate-950 font-bold cursor-pointer"
+              >
+                Adjust Keyboard Range
+              </button>
+            )}
           </div>
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 pb-4">
@@ -141,16 +196,16 @@ export function SongLibrary() {
                   type="button"
                   disabled={songLoading}
                   onClick={() => void selectSong(song)}
-                  className={`group text-left rounded-2xl p-5 border transition flex flex-col justify-between min-h-[168px] cursor-pointer disabled:opacity-60 ${
+                  className={`group text-left rounded-2xl p-5 border transition flex flex-col justify-between min-h-[152px] cursor-pointer disabled:opacity-60 ${
                     isMatch
                       ? "bg-slate-900 border-sky-500/40 hover:border-sky-400 hover:bg-slate-800/90"
                       : "bg-slate-900/70 border-slate-800 hover:border-slate-600 hover:bg-slate-800/80"
                   }`}
                 >
                   <div>
-                    <div className="flex items-center justify-between gap-2 mb-2.5">
+                    <div className="flex items-center justify-between gap-2 mb-2">
                       <span
-                        className={`px-3 py-1 rounded-full text-xs font-extrabold uppercase tracking-wider ${
+                        className={`px-2.5 py-0.5 rounded-full text-xs font-extrabold uppercase tracking-wider ${
                           isMatch
                             ? "bg-sky-500/20 text-sky-200 border border-sky-400/30"
                             : "bg-slate-800 text-slate-300"
@@ -161,26 +216,21 @@ export function SongLibrary() {
 
                       <div className="flex items-center gap-1.5">
                         {song.transposeSemitones !== 0 && (
-                          <span className="px-2.5 py-0.5 rounded-full bg-violet-500/20 border border-violet-400/30 text-violet-200 text-xs font-semibold">
+                          <span className="px-2 py-0.5 rounded-full bg-violet-500/20 border border-violet-400/30 text-violet-200 text-xs font-semibold">
                             {song.transposeSemitones > 0 ? "+" : ""}
                             {song.transposeSemitones / 12} oct
                           </span>
                         )}
                         <span className="text-xs font-mono text-slate-400">
-                          {Math.round(song.durationSec)}s · {song.bpm} BPM
+                          {formatDuration(song.durationSec)} · {song.bpm} BPM
                         </span>
                       </div>
                     </div>
 
-                    <h3 className="text-xl font-bold text-white group-hover:text-sky-300 transition">
+                    <h3 className="text-lg font-bold text-white group-hover:text-sky-300 transition line-clamp-2">
                       {song.title}
                     </h3>
-                    <div className="text-sm text-slate-400 mt-0.5">{song.composer}</div>
-                    {song.description && (
-                      <p className="text-sm text-slate-300/90 mt-2 line-clamp-2">
-                        {song.description}
-                      </p>
-                    )}
+                    <div className="text-sm text-slate-400 mt-0.5 truncate">{song.composer}</div>
                   </div>
 
                   <div className="flex items-center justify-between pt-3 mt-3 border-t border-slate-800/80">
@@ -204,6 +254,7 @@ export function SongLibrary() {
         maxNote={idleKeyboardRange.maxNote}
         activeUserNotes={activeUserNotes}
         activeSongNotes={new Set()}
+        sustainPedalDown={sustainPedalDown}
         heightClass="h-32"
       />
     </div>

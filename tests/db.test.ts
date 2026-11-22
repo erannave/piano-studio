@@ -50,7 +50,7 @@ describe("PianoDatabase (bun:sqlite)", () => {
         pieceSummaries: [],
         calibratedAt: "2026-11-22T15:00:00.000Z",
       },
-      versionBeforeSubmit
+      versionBeforeSubmit,
     );
 
     expect(staleAttempt.applied).toBe(false);
@@ -67,7 +67,7 @@ describe("PianoDatabase (bun:sqlite)", () => {
         pieceSummaries: [],
         calibratedAt: "2026-11-22T15:05:00.000Z",
       },
-      freshVersion
+      freshVersion,
     );
 
     expect(freshAttempt.applied).toBe(true);

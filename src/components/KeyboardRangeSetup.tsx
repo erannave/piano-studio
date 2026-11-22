@@ -103,7 +103,11 @@ export function KeyboardRangeSetup() {
                 1. Lowest Key
               </div>
               <div className="text-3xl font-bold font-mono text-white mt-2">
-                {lowNote !== null ? midiToNoteName(lowNote) : step === "low" ? "Press lowest key…" : "—"}
+                {lowNote !== null
+                  ? midiToNoteName(lowNote)
+                  : step === "low"
+                    ? "Press lowest key…"
+                    : "—"}
               </div>
               <div className="text-sm text-slate-400 mt-1">
                 {midiStatus === "connected"

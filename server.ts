@@ -55,7 +55,11 @@ const apiRoutes = {
   "/api/profile/keyboard-range": {
     PUT: async (req: Request) => {
       try {
-        const body = (await req.json()) as { minNote?: unknown; maxNote?: unknown; calibrated?: unknown };
+        const body = (await req.json()) as {
+          minNote?: unknown;
+          maxNote?: unknown;
+          calibrated?: unknown;
+        };
         const minNote = Number(body.minNote);
         const maxNote = Number(body.maxNote);
         if (!Number.isFinite(minNote) || !Number.isFinite(maxNote)) {
@@ -101,7 +105,7 @@ const apiRoutes = {
               superseded: true,
               profile: saved.profile,
             },
-            409
+            409,
           );
         }
         return json({ result, profile: saved.profile });
@@ -152,5 +156,5 @@ const server = Bun.serve({
 });
 
 console.log(
-  `Piano Learning App running at ${server.url} (${isProd ? "production" : "development"} mode)`
+  `Piano Learning App running at ${server.url} (${isProd ? "production" : "development"} mode)`,
 );

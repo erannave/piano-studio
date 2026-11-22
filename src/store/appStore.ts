@@ -1,13 +1,16 @@
 import { create } from "zustand";
-import { loadParsedSong } from "../shared/midiLoader.ts";
 import { PIANO_MAX_NOTE, PIANO_MIN_NOTE } from "../shared/keyboardRange.ts";
+import { loadParsedSong } from "../shared/midiLoader.ts";
 import type {
   CalibrationPieceAttempt,
   CalibrationResult,
   FittedSong,
   LearnerProfile,
+  MidiDeviceInfo,
   MidiEventRecord,
   ParsedSong,
+  PlayerViewMode,
+  PracticeHandMode,
   SongMetadata,
   Stage,
 } from "../shared/types.ts";
@@ -39,8 +42,11 @@ interface AppState {
   // MIDI
   midiStatus: MidiStatus;
   connectedDeviceName: string | null;
-  midiDevices: string[];
+  midiDevices: MidiDeviceInfo[];
+  selectedMidiDeviceId: string | null; // null = all connected devices
   activeUserNotes: Set<number>;
+  physicalUserNotes: Set<number>;
+  sustainPedalDown: boolean;
 
   // Persisted Learner Profile
   profile: LearnerProfile;
@@ -58,16 +64,27 @@ interface AppState {
   songLoading: boolean;
   activeSongNotes: Set<number>;
   isPlaying: boolean;
-  tempo: number; // 0.5 .. 1.25
+  tempo: number; // 0.25 .. 1.5
+
+  // Tier 1 Practice & View Settings
+  viewMode: PlayerViewMode; // default "score"
+  showNoteNames: boolean;
+  waitMode: boolean;
+  practiceHand: PracticeHandMode;
+  muteOtherHand: boolean;
+  metronomeEnabled: boolean;
+  countInEnabled: boolean;
 
   // Audio Synth
   isMuted: boolean;
   volume: number; // 0 .. 1
 
   // Actions
-  setMidiStatus: (status: MidiStatus, devices: string[]) => void;
+  setMidiStatus: (status: MidiStatus, devices: MidiDeviceInfo[]) => void;
+  setSelectedMidiDeviceId: (deviceId: string | null) => void;
   handleMidiNoteOn: (midi: number, velocity: number) => void;
   handleMidiNoteOff: (midi: number) => void;
+  setSustainPedal: (down: boolean) => void;
   clearActiveUserNotes: () => void;
 
   bootstrap: () => Promise<void>;
@@ -82,6 +99,13 @@ interface AppState {
   setActiveSongNotes: (notes: Set<number>) => void;
   setIsPlaying: (playing: boolean) => void;
   setTempo: (tempo: number) => void;
+  setViewMode: (mode: PlayerViewMode) => void;
+  setShowNoteNames: (show: boolean) => void;
+  setWaitMode: (enabled: boolean) => void;
+  setPracticeHand: (hand: PracticeHandMode) => void;
+  setMuteOtherHand: (muted: boolean) => void;
+  setMetronomeEnabled: (enabled: boolean) => void;
+  setCountInEnabled: (enabled: boolean) => void;
   toggleMute: () => void;
   setVolume: (volume: number) => void;
 }
@@ -99,7 +123,10 @@ export const useAppStore = create<AppState>((set, get) => ({
   midiStatus: "initializing",
   connectedDeviceName: null,
   midiDevices: [],
+  selectedMidiDeviceId: null,
   activeUserNotes: new Set<number>(),
+  physicalUserNotes: new Set<number>(),
+  sustainPedalDown: false,
 
   profile: DEFAULT_PROFILE,
   profileLoaded: false,
@@ -116,20 +143,49 @@ export const useAppStore = create<AppState>((set, get) => ({
   isPlaying: false,
   tempo: 1,
 
+  viewMode: "score",
+  showNoteNames: false,
+  waitMode: false,
+  practiceHand: "both",
+  muteOtherHand: false,
+  metronomeEnabled: false,
+  countInEnabled: true,
+
   isMuted: false,
   volume: 0.75,
 
-  setMidiStatus: (status, devices) =>
+  setMidiStatus: (status, devices) => {
+    const currentSelected = get().selectedMidiDeviceId;
+    const stillPresent = currentSelected && devices.some((d) => d.id === currentSelected);
+    const nextSelected = stillPresent ? currentSelected : null;
+    const activeDevice = nextSelected ? devices.find((d) => d.id === nextSelected) : devices[0];
+
     set({
       midiStatus: status,
       midiDevices: devices,
-      connectedDeviceName: devices[0] ?? null,
-    }),
+      selectedMidiDeviceId: nextSelected,
+      connectedDeviceName: activeDevice?.name ?? null,
+    });
+  },
+
+  setSelectedMidiDeviceId: (deviceId) => {
+    const devices = get().midiDevices;
+    const chosen = deviceId ? devices.find((d) => d.id === deviceId) : devices[0];
+    set({
+      selectedMidiDeviceId: deviceId,
+      connectedDeviceName: chosen?.name ?? null,
+      activeUserNotes: new Set<number>(),
+      physicalUserNotes: new Set<number>(),
+      sustainPedalDown: false,
+    });
+  },
 
   handleMidiNoteOn: (midi, velocity) => {
-    const next = new Set(get().activeUserNotes);
-    next.add(midi);
-    set({ activeUserNotes: next });
+    const nextPhysical = new Set(get().physicalUserNotes);
+    nextPhysical.add(midi);
+    const nextActive = new Set(get().activeUserNotes);
+    nextActive.add(midi);
+    set({ physicalUserNotes: nextPhysical, activeUserNotes: nextActive });
 
     const event: MidiEventRecord = {
       type: "noteOn",
@@ -141,9 +197,17 @@ export const useAppStore = create<AppState>((set, get) => ({
   },
 
   handleMidiNoteOff: (midi) => {
-    const next = new Set(get().activeUserNotes);
-    next.delete(midi);
-    set({ activeUserNotes: next });
+    const nextPhysical = new Set(get().physicalUserNotes);
+    nextPhysical.delete(midi);
+
+    if (get().sustainPedalDown) {
+      // Keep note visually/musically active while sustain pedal is held
+      set({ physicalUserNotes: nextPhysical });
+    } else {
+      const nextActive = new Set(get().activeUserNotes);
+      nextActive.delete(midi);
+      set({ physicalUserNotes: nextPhysical, activeUserNotes: nextActive });
+    }
 
     const event: MidiEventRecord = {
       type: "noteOff",
@@ -154,13 +218,33 @@ export const useAppStore = create<AppState>((set, get) => ({
     for (const listener of midiListeners) listener(event);
   },
 
-  clearActiveUserNotes: () => set({ activeUserNotes: new Set<number>() }),
+  setSustainPedal: (down) => {
+    if (down) {
+      set({ sustainPedalDown: true });
+    } else {
+      // Release any sustained notes that are no longer physically held
+      const physical = new Set(get().physicalUserNotes);
+      set({ sustainPedalDown: false, activeUserNotes: physical });
+    }
+  },
+
+  clearActiveUserNotes: () =>
+    set({
+      activeUserNotes: new Set<number>(),
+      physicalUserNotes: new Set<number>(),
+      sustainPedalDown: false,
+    }),
 
   bootstrap: async () => {
     set({ songsLoading: true });
     try {
-      const [profileRes, songsRes] = await Promise.all([fetch("/api/profile"), fetch("/api/songs")]);
-      const profile = profileRes.ok ? ((await profileRes.json()) as LearnerProfile) : DEFAULT_PROFILE;
+      const [profileRes, songsRes] = await Promise.all([
+        fetch("/api/profile"),
+        fetch("/api/songs"),
+      ]);
+      const profile = profileRes.ok
+        ? ((await profileRes.json()) as LearnerProfile)
+        : DEFAULT_PROFILE;
       const songs = songsRes.ok ? ((await songsRes.json()) as SongMetadata[]) : [];
 
       let currentStage: Stage = "library";
@@ -303,7 +387,14 @@ export const useAppStore = create<AppState>((set, get) => ({
 
   setActiveSongNotes: (notes) => set({ activeSongNotes: notes }),
   setIsPlaying: (playing) => set({ isPlaying: playing }),
-  setTempo: (tempo) => set({ tempo: Math.max(0.5, Math.min(1.25, tempo)) }),
+  setTempo: (tempo) => set({ tempo: Math.max(0.25, Math.min(1.5, tempo)) }),
+  setViewMode: (viewMode) => set({ viewMode }),
+  setShowNoteNames: (showNoteNames) => set({ showNoteNames }),
+  setWaitMode: (waitMode) => set({ waitMode }),
+  setPracticeHand: (practiceHand) => set({ practiceHand }),
+  setMuteOtherHand: (muteOtherHand) => set({ muteOtherHand }),
+  setMetronomeEnabled: (metronomeEnabled) => set({ metronomeEnabled }),
+  setCountInEnabled: (countInEnabled) => set({ countInEnabled }),
   toggleMute: () => set((s) => ({ isMuted: !s.isMuted })),
   setVolume: (volume) => set({ volume: Math.max(0, Math.min(1, volume)) }),
 }));

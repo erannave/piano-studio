@@ -12,7 +12,7 @@ export interface CoachingResult {
 export async function generateCoachingFeedback(
   skillLevel: number,
   pieceSummaries: PieceScoreSummary[],
-  localFallback: string
+  localFallback: string,
 ): Promise<CoachingResult> {
   const endpoint = process.env.AI_ENDPOINT?.trim() || DEFAULT_AI_ENDPOINT;
   const model = process.env.AI_MODEL?.trim() || DEFAULT_AI_MODEL;
@@ -38,7 +38,7 @@ export async function generateCoachingFeedback(
   }
 
   const systemPrompt =
-    "You are an encouraging piano teacher. Given a learner's deterministic Skill Calibration performance summary and assigned Skill Level (1–10), write a concise 2-sentence encouraging critique highlighting what went well and one actionable next step. Respond with a JSON object containing exactly one key: {\"feedback\": \"...\"}.";
+    'You are an encouraging piano teacher. Given a learner\'s deterministic Skill Calibration performance summary and assigned Skill Level (1–10), write a concise 2-sentence encouraging critique highlighting what went well and one actionable next step. Respond with a JSON object containing exactly one key: {"feedback": "..."}.';
 
   const userContent = JSON.stringify({
     assignedSkillLevel: skillLevel,
@@ -92,7 +92,10 @@ export async function generateCoachingFeedback(
 
 function extractFeedbackText(rawText: string): string | null {
   // Strip optional markdown code fences
-  const cleaned = rawText.replace(/^```(?:json)?\s*/i, "").replace(/\s*```$/, "").trim();
+  const cleaned = rawText
+    .replace(/^```(?:json)?\s*/i, "")
+    .replace(/\s*```$/, "")
+    .trim();
   try {
     const parsed = JSON.parse(cleaned) as { feedback?: unknown };
     if (typeof parsed.feedback === "string" && parsed.feedback.trim().length > 0) {

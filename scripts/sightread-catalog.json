@@ -1,0 +1,1009 @@
+[
+  {
+    "file": "music/songs/aloha-oe.mxl",
+    "meta": {
+      "title": "Aloha ʻOe",
+      "composer": "Queen Liliʻuokalani"
+    },
+    "source": "builtin",
+    "id": "aloha-oe",
+    "duration": 54,
+    "difficulty": 37,
+    "leftTrack": 1,
+    "rightTrack": 0
+  },
+  {
+    "file": "music/songs/amazing-grace.mxl",
+    "meta": {
+      "title": "Amazing Grace",
+      "composer": "Trad."
+    },
+    "source": "builtin",
+    "id": "amazing-grace",
+    "duration": 39,
+    "difficulty": 17,
+    "leftTrack": 1,
+    "rightTrack": 0
+  },
+  {
+    "file": "music/songs/arabesques.mxl",
+    "meta": {
+      "title": "Arabesque No. 1",
+      "composer": "Claude Debussy",
+      "workTitle": "Deux Arabesques",
+      "workNumber": "L. 66"
+    },
+    "source": "builtin",
+    "id": "arabesques",
+    "duration": 246,
+    "difficulty": 48,
+    "leftTrack": 1,
+    "rightTrack": 0
+  },
+  {
+    "file": "music/songs/auld-lang-syne.mxl",
+    "meta": {
+      "title": "Auld Lang Syne",
+      "composer": "Trad."
+    },
+    "source": "builtin",
+    "id": "auld-lang-syne",
+    "duration": 49,
+    "difficulty": 19,
+    "leftTrack": 1,
+    "rightTrack": 0
+  },
+  {
+    "file": "music/songs/ave-maria-bach-gounod.mxl",
+    "meta": {
+      "title": "Ave Maria (Méditation sur le Prélude BWV 846)",
+      "composer": "Bach / Gounod"
+    },
+    "source": "builtin",
+    "id": "ave-maria-bach-gounod",
+    "duration": 149,
+    "difficulty": 39,
+    "leftTrack": 1,
+    "rightTrack": 0
+  },
+  {
+    "file": "music/songs/ave-maria-schubert.mxl",
+    "meta": {
+      "title": "Ave Maria (Ellens Gesang III)",
+      "composer": "Franz Schubert",
+      "workNumber": "D. 839"
+    },
+    "source": "builtin",
+    "id": "ave-maria-schubert",
+    "duration": 149,
+    "difficulty": 51,
+    "leftTrack": 1,
+    "rightTrack": 0
+  },
+  {
+    "file": "music/songs/battle-hymn-of-the-republic.mxl",
+    "meta": {
+      "title": "Battle Hymn of the Republic",
+      "composer": "Trad."
+    },
+    "source": "builtin",
+    "id": "battle-hymn-of-the-republic",
+    "duration": 27,
+    "difficulty": 30,
+    "leftTrack": 1,
+    "rightTrack": 0
+  },
+  {
+    "file": "music/songs/brahms-lullaby.mxl",
+    "meta": {
+      "title": "Brahms's Lullaby (Wiegenlied)",
+      "composer": "Johannes Brahms",
+      "workNumber": "Op. 49 No. 4"
+    },
+    "source": "builtin",
+    "id": "brahms-lullaby",
+    "duration": 32,
+    "difficulty": 28,
+    "leftTrack": 1,
+    "rightTrack": 0
+  },
+  {
+    "file": "music/songs/brahms-waltz-op39-no15.mxl",
+    "meta": {
+      "title": "Waltz in A-flat major",
+      "composer": "Johannes Brahms",
+      "workTitle": "16 Waltzes",
+      "workNumber": "Op. 39 No. 15"
+    },
+    "source": "builtin",
+    "id": "brahms-waltz-op39-no15",
+    "duration": 68,
+    "difficulty": 48,
+    "leftTrack": 1,
+    "rightTrack": 0
+  },
+  {
+    "file": "music/songs/burgmuller-arabesque.mxl",
+    "meta": {
+      "title": "L'Arabesque",
+      "composer": "Friedrich Burgmüller",
+      "workTitle": "25 Études faciles",
+      "workNumber": "Op. 100 No. 2"
+    },
+    "source": "builtin",
+    "id": "burgmuller-arabesque",
+    "duration": 44,
+    "difficulty": 41,
+    "leftTrack": 1,
+    "rightTrack": 0
+  },
+  {
+    "file": "music/songs/burgmuller-ballade.mxl",
+    "meta": {
+      "title": "Ballade",
+      "composer": "Friedrich Burgmüller",
+      "workTitle": "25 Études faciles",
+      "workNumber": "Op. 100 No. 15"
+    },
+    "source": "builtin",
+    "id": "burgmuller-ballade",
+    "duration": 97,
+    "difficulty": 39,
+    "leftTrack": 1,
+    "rightTrack": 0
+  },
+  {
+    "file": "music/songs/canon-in-d.mxl",
+    "meta": {
+      "title": "Canon in D",
+      "composer": "Johann Pachelbel",
+      "workTitle": "Canon and Gigue in D major",
+      "workNumber": "P. 37"
+    },
+    "source": "builtin",
+    "id": "canon-in-d",
+    "duration": 127,
+    "url": "https://musescore.com/user/3349846/scores/1376056",
+    "license": "https://creativecommons.org/publicdomain/mark/1.0/",
+    "difficulty": 29,
+    "leftTrack": 1,
+    "rightTrack": 0
+  },
+  {
+    "file": "music/songs/canon-in-d-easy.mxl",
+    "meta": {
+      "title": "Canon in D (easy)",
+      "composer": "Johann Pachelbel",
+      "workTitle": "Canon and Gigue in D major",
+      "workNumber": "P. 37"
+    },
+    "source": "builtin",
+    "id": "canon-in-d-easy",
+    "duration": 64,
+    "difficulty": 16,
+    "leftTrack": 1,
+    "rightTrack": 0
+  },
+  {
+    "file": "music/songs/chopin-prelude-op28-no15.mxl",
+    "meta": {
+      "title": "Prelude in D-flat major “Raindrop”",
+      "composer": "Frédéric Chopin",
+      "workTitle": "24 Preludes",
+      "workNumber": "Op. 28 No. 15"
+    },
+    "source": "builtin",
+    "id": "chopin-prelude-op28-no15",
+    "duration": 270,
+    "difficulty": 48,
+    "leftTrack": 1,
+    "rightTrack": 0
+  },
+  {
+    "file": "music/songs/chopin-prelude-op28-no4.mxl",
+    "meta": {
+      "title": "Prelude in E minor",
+      "composer": "Frédéric Chopin",
+      "workTitle": "24 Preludes",
+      "workNumber": "Op. 28 No. 4"
+    },
+    "source": "builtin",
+    "id": "chopin-prelude-op28-no4",
+    "duration": 115,
+    "difficulty": 44,
+    "leftTrack": 1,
+    "rightTrack": 0
+  },
+  {
+    "file": "music/songs/chopin-prelude-op28-no7.mxl",
+    "meta": {
+      "title": "Prelude in A major",
+      "composer": "Frédéric Chopin",
+      "workTitle": "24 Preludes",
+      "workNumber": "Op. 28 No. 7"
+    },
+    "source": "builtin",
+    "id": "chopin-prelude-op28-no7",
+    "duration": 45,
+    "difficulty": 44,
+    "leftTrack": 1,
+    "rightTrack": 0
+  },
+  {
+    "file": "music/songs/chopin-waltz-b150.mxl",
+    "meta": {
+      "title": "Waltz in A minor",
+      "composer": "Frédéric Chopin",
+      "workNumber": "B. 150"
+    },
+    "source": "builtin",
+    "id": "chopin-waltz-b150",
+    "duration": 155,
+    "difficulty": 34,
+    "leftTrack": 1,
+    "rightTrack": 0
+  },
+  {
+    "file": "music/songs/clair-de-lune.mxl",
+    "meta": {
+      "title": "Clair de Lune",
+      "composer": "Claude Debussy",
+      "workTitle": "Suite bergamasque",
+      "workNumber": "L. 75",
+      "movementNumber": "III"
+    },
+    "source": "builtin",
+    "id": "clair-de-lune",
+    "duration": 282,
+    "difficulty": 45,
+    "leftTrack": 1,
+    "rightTrack": 0
+  },
+  {
+    "file": "music/songs/clementi-sonatina-op36-no1.mxl",
+    "meta": {
+      "title": "Allegro",
+      "composer": "Muzio Clementi",
+      "workTitle": "Sonatina in C major",
+      "workNumber": "Op. 36 No. 1",
+      "movementNumber": "I"
+    },
+    "source": "builtin",
+    "id": "clementi-sonatina-op36-no1",
+    "duration": 117,
+    "difficulty": 28,
+    "leftTrack": 1,
+    "rightTrack": 0
+  },
+  {
+    "file": "music/songs/drunken-sailor.mxl",
+    "meta": {
+      "title": "Drunken Sailor",
+      "composer": "Trad."
+    },
+    "source": "builtin",
+    "id": "drunken-sailor",
+    "duration": 16,
+    "difficulty": 25,
+    "leftTrack": 1,
+    "rightTrack": 0
+  },
+  {
+    "file": "music/songs/drunken-sailor-fife.mxl",
+    "meta": {
+      "title": "Drunken Sailor (fife setting)",
+      "composer": "Trad."
+    },
+    "source": "builtin",
+    "id": "drunken-sailor-fife",
+    "duration": 15,
+    "difficulty": 30,
+    "leftTrack": 1,
+    "rightTrack": 0
+  },
+  {
+    "file": "music/songs/fantaisie-impromptu.mxl",
+    "meta": {
+      "title": "Fantaisie-Impromptu",
+      "composer": "Frédéric Chopin",
+      "workNumber": "Op. 66"
+    },
+    "source": "builtin",
+    "id": "fantaisie-impromptu",
+    "duration": 254,
+    "difficulty": 67,
+    "leftTrack": 1,
+    "rightTrack": 0
+  },
+  {
+    "file": "music/songs/frere-jacques.mxl",
+    "meta": {
+      "title": "Frère Jacques",
+      "composer": "Trad."
+    },
+    "source": "builtin",
+    "id": "frere-jacques",
+    "duration": 19,
+    "difficulty": 17,
+    "leftTrack": 1,
+    "rightTrack": 0
+  },
+  {
+    "file": "music/songs/fur-elise.mxl",
+    "meta": {
+      "title": "Für Elise",
+      "composer": "Ludwig van Beethoven",
+      "workNumber": "WoO 59"
+    },
+    "source": "builtin",
+    "id": "fur-elise",
+    "duration": 156,
+    "difficulty": 44,
+    "leftTrack": 1,
+    "rightTrack": 0
+  },
+  {
+    "file": "music/songs/fur-elise-easy.mxl",
+    "meta": {
+      "title": "Für Elise (easy)",
+      "composer": "Ludwig van Beethoven",
+      "workNumber": "WoO 59"
+    },
+    "source": "builtin",
+    "id": "fur-elise-easy",
+    "duration": 21,
+    "difficulty": 21,
+    "leftTrack": 1,
+    "rightTrack": 0
+  },
+  {
+    "file": "music/songs/gnossienne-no1.mxl",
+    "meta": {
+      "title": "Gnossienne No. 1",
+      "composer": "Erik Satie"
+    },
+    "source": "builtin",
+    "id": "gnossienne-no1",
+    "duration": 273,
+    "difficulty": 34,
+    "leftTrack": 1,
+    "rightTrack": 0
+  },
+  {
+    "file": "music/songs/god-save-the-king.mxl",
+    "meta": {
+      "title": "God Save the King",
+      "composer": "Trad."
+    },
+    "source": "builtin",
+    "id": "god-save-the-king",
+    "duration": 25,
+    "difficulty": 29,
+    "leftTrack": 1,
+    "rightTrack": 0
+  },
+  {
+    "file": "music/songs/greensleeves.mxl",
+    "meta": {
+      "title": "Greensleeves",
+      "composer": "Trad."
+    },
+    "source": "builtin",
+    "id": "greensleeves",
+    "duration": 88,
+    "difficulty": 26,
+    "leftTrack": 1,
+    "rightTrack": 0
+  },
+  {
+    "file": "music/songs/grieg-arietta.mxl",
+    "meta": {
+      "title": "Arietta",
+      "composer": "Edvard Grieg",
+      "workTitle": "Lyric Pieces, Book I",
+      "workNumber": "Op. 12 No. 1"
+    },
+    "source": "builtin",
+    "id": "grieg-arietta",
+    "duration": 42,
+    "difficulty": 38,
+    "leftTrack": 1,
+    "rightTrack": 0
+  },
+  {
+    "file": "music/songs/gymnopedie-no1.mxl",
+    "meta": {
+      "title": "Gymnopédie No. 1",
+      "composer": "Erik Satie"
+    },
+    "source": "builtin",
+    "id": "gymnopedie-no1",
+    "duration": 234,
+    "difficulty": 32,
+    "leftTrack": 1,
+    "rightTrack": 0
+  },
+  {
+    "file": "music/songs/happy-birthday.mxl",
+    "meta": {
+      "title": "Happy Birthday",
+      "composer": "Mildred J. Hill"
+    },
+    "source": "builtin",
+    "id": "happy-birthday",
+    "duration": 14,
+    "difficulty": 19,
+    "leftTrack": 1,
+    "rightTrack": 0
+  },
+  {
+    "file": "music/songs/hot-cross-buns.mxl",
+    "meta": {
+      "title": "Hot Cross Buns",
+      "composer": "Trad."
+    },
+    "source": "builtin",
+    "id": "hot-cross-buns",
+    "duration": 10,
+    "difficulty": 19,
+    "leftTrack": 1,
+    "rightTrack": 0
+  },
+  {
+    "file": "music/songs/in-the-hall-of-the-mountain-king.mxl",
+    "meta": {
+      "title": "In the Hall of the Mountain King",
+      "composer": "Edvard Grieg",
+      "workTitle": "Peer Gynt Suite No. 1",
+      "workNumber": "Op. 46 No. 4"
+    },
+    "source": "builtin",
+    "id": "in-the-hall-of-the-mountain-king",
+    "duration": 148,
+    "difficulty": 58,
+    "leftTrack": 1,
+    "rightTrack": 0
+  },
+  {
+    "file": "music/songs/invention-no-1.mxl",
+    "meta": {
+      "title": "Invention No. 1 in C major",
+      "composer": "Johann Sebastian Bach",
+      "workNumber": "BWV 772"
+    },
+    "source": "builtin",
+    "id": "invention-no-1",
+    "duration": 69,
+    "difficulty": 32,
+    "leftTrack": 1,
+    "rightTrack": 0
+  },
+  {
+    "file": "music/songs/jingle-bells.mxl",
+    "meta": {
+      "title": "Jingle Bells",
+      "composer": "James Lord Pierpont"
+    },
+    "source": "builtin",
+    "id": "jingle-bells",
+    "duration": 34,
+    "difficulty": 21,
+    "leftTrack": 1,
+    "rightTrack": 0
+  },
+  {
+    "file": "music/songs/la-candeur.mxl",
+    "meta": {
+      "title": "La Candeur",
+      "composer": "Friedrich Burgmüller",
+      "workTitle": "25 Études faciles",
+      "workNumber": "Op. 100 No. 1"
+    },
+    "source": "builtin",
+    "id": "la-candeur",
+    "duration": 60,
+    "difficulty": 32,
+    "leftTrack": 1,
+    "rightTrack": 0
+  },
+  {
+    "file": "music/songs/lieber-augustin.mxl",
+    "meta": {
+      "title": "O du lieber Augustin",
+      "composer": "Trad."
+    },
+    "source": "builtin",
+    "id": "lieber-augustin",
+    "duration": 28,
+    "difficulty": 17,
+    "leftTrack": 1,
+    "rightTrack": 0
+  },
+  {
+    "file": "music/songs/maple-leaf-rag.mxl",
+    "meta": {
+      "title": "Maple Leaf Rag",
+      "composer": "Scott Joplin"
+    },
+    "source": "builtin",
+    "id": "maple-leaf-rag",
+    "duration": 173,
+    "difficulty": 54,
+    "leftTrack": 1,
+    "rightTrack": 0
+  },
+  {
+    "file": "music/songs/mary-had-a-little-lamb.mxl",
+    "meta": {
+      "title": "Mary Had a Little Lamb",
+      "composer": "Trad."
+    },
+    "source": "builtin",
+    "id": "mary-had-a-little-lamb",
+    "duration": 21,
+    "difficulty": 14,
+    "leftTrack": 1,
+    "rightTrack": 0
+  },
+  {
+    "file": "music/songs/merry-farmer.mxl",
+    "meta": {
+      "title": "The Merry Farmer",
+      "composer": "Robert Schumann",
+      "workTitle": "Album for the Young",
+      "workNumber": "Op. 68 No. 10"
+    },
+    "source": "builtin",
+    "id": "merry-farmer",
+    "duration": 42,
+    "difficulty": 37,
+    "leftTrack": 1,
+    "rightTrack": 0
+  },
+  {
+    "file": "music/songs/minuet-in-g-major.mxl",
+    "meta": {
+      "title": "Minuet in G Major",
+      "composer": "Christian Petzold",
+      "workTitle": "Notebook for Anna Magdalena Bach",
+      "workNumber": "BWV Anh. 114"
+    },
+    "source": "builtin",
+    "id": "minuet-in-g-major",
+    "duration": 48,
+    "difficulty": 31,
+    "leftTrack": 1,
+    "rightTrack": 0
+  },
+  {
+    "file": "music/songs/minute-waltz.mxl",
+    "meta": {
+      "title": "Waltz in D-flat major “Minute”",
+      "composer": "Frédéric Chopin",
+      "workTitle": "Waltzes",
+      "workNumber": "Op. 64 No. 1"
+    },
+    "source": "builtin",
+    "id": "minute-waltz",
+    "duration": 90,
+    "difficulty": 69,
+    "leftTrack": 1,
+    "rightTrack": 0
+  },
+  {
+    "file": "music/songs/molly-malone.mxl",
+    "meta": {
+      "title": "Molly Malone",
+      "composer": "Trad."
+    },
+    "source": "builtin",
+    "id": "molly-malone",
+    "duration": 28,
+    "difficulty": 22,
+    "leftTrack": 1,
+    "rightTrack": 0
+  },
+  {
+    "file": "music/songs/moonlight-sonata.mxl",
+    "meta": {
+      "title": "Adagio sostenuto",
+      "composer": "Ludwig van Beethoven",
+      "workTitle": "Piano Sonata No. 14 “Moonlight”",
+      "workNumber": "Op. 27 No. 2",
+      "movementNumber": "I"
+    },
+    "source": "builtin",
+    "id": "moonlight-sonata",
+    "duration": 368,
+    "difficulty": 39,
+    "leftTrack": 1,
+    "rightTrack": 0
+  },
+  {
+    "file": "music/songs/morning-mood.mxl",
+    "meta": {
+      "title": "Morning Mood",
+      "composer": "Edvard Grieg",
+      "workTitle": "Peer Gynt Suite No. 1",
+      "workNumber": "Op. 46 No. 1"
+    },
+    "source": "builtin",
+    "id": "morning-mood",
+    "duration": 20,
+    "difficulty": 31,
+    "leftTrack": 1,
+    "rightTrack": 0
+  },
+  {
+    "file": "music/songs/musette-in-d-major.mxl",
+    "meta": {
+      "title": "Musette in D Major",
+      "composer": "Anonymous",
+      "workTitle": "Notebook for Anna Magdalena Bach",
+      "workNumber": "BWV Anh. 126"
+    },
+    "source": "builtin",
+    "id": "musette-in-d-major",
+    "duration": 30,
+    "difficulty": 33,
+    "leftTrack": 1,
+    "rightTrack": 0
+  },
+  {
+    "file": "music/songs/nocturne-op9-no2.mxl",
+    "meta": {
+      "title": "Nocturne in E-flat major",
+      "composer": "Frédéric Chopin",
+      "workTitle": "Nocturnes",
+      "workNumber": "Op. 9 No. 2"
+    },
+    "source": "builtin",
+    "id": "nocturne-op9-no2",
+    "duration": 199,
+    "difficulty": 52,
+    "leftTrack": 1,
+    "rightTrack": 0
+  },
+  {
+    "file": "music/songs/o-tannenbaum.mxl",
+    "meta": {
+      "title": "O Tannenbaum",
+      "composer": "Trad."
+    },
+    "source": "builtin",
+    "id": "o-tannenbaum",
+    "duration": 23,
+    "difficulty": 22,
+    "leftTrack": 1,
+    "rightTrack": 0
+  },
+  {
+    "file": "music/songs/ode-to-joy.mxl",
+    "meta": {
+      "title": "Ode to Joy",
+      "composer": "Ludwig van Beethoven",
+      "workTitle": "Symphony No. 9 in D minor",
+      "workNumber": "Op. 125",
+      "movementNumber": "IV"
+    },
+    "source": "builtin",
+    "id": "ode-to-joy",
+    "duration": 34,
+    "difficulty": 19,
+    "leftTrack": 1,
+    "rightTrack": 0
+  },
+  {
+    "file": "music/songs/old-french-song.mxl",
+    "meta": {
+      "title": "Old French Song",
+      "composer": "Pyotr Ilyich Tchaikovsky",
+      "workTitle": "Album for the Young",
+      "workNumber": "Op. 39 No. 16"
+    },
+    "source": "builtin",
+    "id": "old-french-song",
+    "duration": 52,
+    "difficulty": 39,
+    "leftTrack": 1,
+    "rightTrack": 0
+  },
+  {
+    "file": "music/songs/pathetique-mvt2.mxl",
+    "meta": {
+      "title": "Adagio cantabile",
+      "composer": "Ludwig van Beethoven",
+      "workTitle": "Piano Sonata No. 8 “Pathétique”",
+      "workNumber": "Op. 13",
+      "movementNumber": "II"
+    },
+    "source": "builtin",
+    "id": "pathetique-mvt2",
+    "duration": 245,
+    "difficulty": 45,
+    "leftTrack": 1,
+    "rightTrack": 0
+  },
+  {
+    "file": "music/songs/prelude-in-c-wtc1.mxl",
+    "meta": {
+      "title": "Prelude in C major",
+      "composer": "Johann Sebastian Bach",
+      "workTitle": "The Well-Tempered Clavier, Book I",
+      "workNumber": "BWV 846"
+    },
+    "source": "builtin",
+    "id": "prelude-in-c-wtc1",
+    "duration": 144,
+    "difficulty": 30,
+    "leftTrack": 1,
+    "rightTrack": 0
+  },
+  {
+    "file": "music/songs/reverie.mxl",
+    "meta": {
+      "title": "Rêverie",
+      "composer": "Claude Debussy",
+      "workNumber": "L. 68"
+    },
+    "source": "builtin",
+    "id": "reverie",
+    "duration": 271,
+    "difficulty": 38,
+    "leftTrack": 1,
+    "rightTrack": 0
+  },
+  {
+    "file": "music/songs/rondo-alla-turca.mxl",
+    "meta": {
+      "title": "Rondo Alla Turca",
+      "composer": "Wolfgang Amadeus Mozart",
+      "workTitle": "Piano Sonata No. 11",
+      "workNumber": "K. 331",
+      "movementNumber": "III"
+    },
+    "source": "builtin",
+    "id": "rondo-alla-turca",
+    "duration": 216,
+    "difficulty": 53,
+    "leftTrack": 1,
+    "rightTrack": 0
+  },
+  {
+    "file": "music/songs/sailors-hornpipe.mxl",
+    "meta": {
+      "title": "Sailor's Hornpipe",
+      "composer": "Trad."
+    },
+    "source": "builtin",
+    "id": "sailors-hornpipe",
+    "duration": 18,
+    "difficulty": 35,
+    "leftTrack": 1,
+    "rightTrack": 0
+  },
+  {
+    "file": "music/songs/scarborough-fair.mxl",
+    "meta": {
+      "title": "Scarborough Fair",
+      "composer": "Trad."
+    },
+    "source": "builtin",
+    "id": "scarborough-fair",
+    "duration": 30,
+    "difficulty": 22,
+    "leftTrack": 1,
+    "rightTrack": 0
+  },
+  {
+    "file": "music/songs/schumann-melody.mxl",
+    "meta": {
+      "title": "Melodie",
+      "composer": "Robert Schumann",
+      "workTitle": "Album for the Young",
+      "workNumber": "Op. 68 No. 1"
+    },
+    "source": "builtin",
+    "id": "schumann-melody",
+    "duration": 48,
+    "difficulty": 30,
+    "leftTrack": 1,
+    "rightTrack": 0
+  },
+  {
+    "file": "music/songs/silent-night.mxl",
+    "meta": {
+      "title": "Silent Night",
+      "composer": "Franz Gruber"
+    },
+    "source": "builtin",
+    "id": "silent-night",
+    "duration": 36,
+    "difficulty": 18,
+    "leftTrack": 1,
+    "rightTrack": 0
+  },
+  {
+    "file": "music/songs/standchen.mxl",
+    "meta": {
+      "title": "Ständchen (Serenade)",
+      "composer": "Franz Schubert",
+      "workTitle": "Schwanengesang",
+      "workNumber": "D. 957 No. 4"
+    },
+    "source": "builtin",
+    "id": "standchen",
+    "duration": 149,
+    "difficulty": 51,
+    "leftTrack": 1,
+    "rightTrack": 0
+  },
+  {
+    "file": "music/songs/star-spangled-banner.mxl",
+    "meta": {
+      "title": "The Star-Spangled Banner",
+      "composer": "Trad."
+    },
+    "source": "builtin",
+    "id": "star-spangled-banner",
+    "duration": 50,
+    "difficulty": 25,
+    "leftTrack": 1,
+    "rightTrack": 0
+  },
+  {
+    "file": "music/songs/swan-lake.mxl",
+    "meta": {
+      "title": "Swan Lake Theme",
+      "composer": "Pyotr Ilyich Tchaikovsky",
+      "workTitle": "Swan Lake",
+      "workNumber": "Op. 20"
+    },
+    "source": "builtin",
+    "id": "swan-lake",
+    "duration": 65,
+    "difficulty": 24,
+    "leftTrack": 1,
+    "rightTrack": 0
+  },
+  {
+    "file": "music/songs/the-entertainer.mxl",
+    "meta": {
+      "title": "The Entertainer",
+      "composer": "Scott Joplin"
+    },
+    "source": "builtin",
+    "id": "the-entertainer",
+    "duration": 72,
+    "url": "https://musescore.com/arw-music/scores/98457",
+    "license": "https://creativecommons.org/publicdomain/mark/1.0/",
+    "difficulty": 29,
+    "leftTrack": 1,
+    "rightTrack": 0
+  },
+  {
+    "file": "music/songs/the-entertainer-complete.mxl",
+    "meta": {
+      "title": "The Entertainer (complete)",
+      "composer": "Scott Joplin"
+    },
+    "source": "builtin",
+    "id": "the-entertainer-complete",
+    "duration": 253,
+    "difficulty": 42,
+    "leftTrack": 1,
+    "rightTrack": 0
+  },
+  {
+    "file": "music/songs/the-swan.mxl",
+    "meta": {
+      "title": "The Swan",
+      "composer": "Camille Saint-Saëns",
+      "workTitle": "The Carnival of the Animals",
+      "workNumber": "No. 13"
+    },
+    "source": "builtin",
+    "id": "the-swan",
+    "duration": 180,
+    "difficulty": 32,
+    "leftTrack": 1,
+    "rightTrack": 0
+  },
+  {
+    "file": "music/songs/to-a-wild-rose.mxl",
+    "meta": {
+      "title": "To a Wild Rose",
+      "composer": "Edward MacDowell",
+      "workTitle": "Woodland Sketches",
+      "workNumber": "Op. 51 No. 1"
+    },
+    "source": "builtin",
+    "id": "to-a-wild-rose",
+    "duration": 70,
+    "difficulty": 32,
+    "leftTrack": 1,
+    "rightTrack": 0
+  },
+  {
+    "file": "music/songs/traumerei.mxl",
+    "meta": {
+      "title": "Träumerei",
+      "composer": "Robert Schumann",
+      "workTitle": "Kinderszenen",
+      "workNumber": "Op. 15 No. 7"
+    },
+    "source": "builtin",
+    "id": "traumerei",
+    "duration": 112,
+    "difficulty": 40,
+    "leftTrack": 1,
+    "rightTrack": 0
+  },
+  {
+    "file": "music/songs/twinkle-twinkle-little-star.mxl",
+    "meta": {
+      "title": "Twinkle Twinkle Little Star",
+      "composer": "Trad."
+    },
+    "source": "builtin",
+    "id": "twinkle-twinkle-little-star",
+    "duration": 36,
+    "difficulty": 15,
+    "leftTrack": 1,
+    "rightTrack": 0
+  },
+  {
+    "file": "music/songs/venetian-boat-song.mxl",
+    "meta": {
+      "title": "Venetian Boat Song",
+      "composer": "Felix Mendelssohn",
+      "workTitle": "Songs Without Words",
+      "workNumber": "Op. 30 No. 6"
+    },
+    "source": "builtin",
+    "id": "venetian-boat-song",
+    "duration": 180,
+    "difficulty": 50,
+    "leftTrack": 1,
+    "rightTrack": 0
+  },
+  {
+    "file": "music/songs/when-the-saints-go-marching-in.mxl",
+    "meta": {
+      "title": "When the Saints Go Marching In",
+      "composer": "Trad."
+    },
+    "source": "builtin",
+    "id": "when-the-saints-go-marching-in",
+    "duration": 37,
+    "difficulty": 14,
+    "leftTrack": 1,
+    "rightTrack": 0
+  },
+  {
+    "file": "music/songs/whittingham-fair.mxl",
+    "meta": {
+      "title": "Whittingham Fair",
+      "composer": "Trad."
+    },
+    "source": "builtin",
+    "id": "whittingham-fair",
+    "duration": 29,
+    "difficulty": 21,
+    "leftTrack": 1,
+    "rightTrack": 0
+  },
+  {
+    "file": "music/songs/yankee-doodle.mxl",
+    "meta": {
+      "title": "Yankee Doodle",
+      "composer": "Trad."
+    },
+    "source": "builtin",
+    "id": "yankee-doodle",
+    "duration": 17,
+    "difficulty": 21,
+    "leftTrack": 1,
+    "rightTrack": 0
+  }
+]

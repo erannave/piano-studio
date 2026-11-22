@@ -32,7 +32,10 @@ export function SkillCalibration() {
   const calibrationSongs = useMemo<FittedSong[]>(() => {
     const pieces = songs
       .filter((s) => s.isCalibrationPiece)
-      .sort((a, b) => (a.calibrationOrder ?? a.difficultyLevel) - (b.calibrationOrder ?? b.difficultyLevel));
+      .sort(
+        (a, b) =>
+          (a.calibrationOrder ?? a.difficultyLevel) - (b.calibrationOrder ?? b.difficultyLevel),
+      );
 
     const fitted: FittedSong[] = [];
     for (const piece of pieces) {
@@ -146,7 +149,7 @@ export function SkillCalibration() {
         }
       }
     },
-    [calibrationSongs.length, currentMeta, parsedPiece, pieceIdx, stopAll, submitCalibration]
+    [calibrationSongs.length, currentMeta, parsedPiece, pieceIdx, stopAll, submitCalibration],
   );
 
   // Subscribe to MIDI events during "armed" (trigger start on first note) and "recording"
@@ -159,9 +162,7 @@ export function SkillCalibration() {
           unlockAudio();
           recordStartPerfRef.current = event.timestampMs;
           triggeredNoteIdxRef.current = 0;
-          recordedEventsRef.current = [
-            { ...event, timestampMs: 0 },
-          ];
+          recordedEventsRef.current = [{ ...event, timestampMs: 0 }];
           setRecordedCount(1);
           setPhase("recording");
         }
@@ -181,7 +182,10 @@ export function SkillCalibration() {
   useEffect(() => {
     if (phase !== "recording" || !parsedPiece) return;
 
-    const maxDuration = Math.min(CALIBRATION_DURATION_SEC, Math.max(8, parsedPiece.durationSec + 0.5));
+    const maxDuration = Math.min(
+      CALIBRATION_DURATION_SEC,
+      Math.max(8, parsedPiece.durationSec + 0.5),
+    );
     const notes = parsedPiece.notes;
 
     const tick = () => {
@@ -229,9 +233,9 @@ export function SkillCalibration() {
       computeAutoZoomRange(
         currentMeta?.fittedMinNote ?? null,
         currentMeta?.fittedMaxNote ?? null,
-        profile.keyboardRange
+        profile.keyboardRange,
       ),
-    [currentMeta, profile.keyboardRange]
+    [currentMeta, profile.keyboardRange],
   );
 
   const remainingSec = Math.max(0, Math.ceil(CALIBRATION_DURATION_SEC - currentTimeSec));
@@ -251,7 +255,9 @@ export function SkillCalibration() {
             </div>
             <div className="w-24 h-24 rounded-2xl bg-sky-500/20 border-2 border-sky-400 flex flex-col items-center justify-center shrink-0">
               <span className="text-xs uppercase tracking-wider text-sky-300 font-bold">Level</span>
-              <span className="text-4xl font-extrabold text-white">{lastCalibrationResult.skillLevel}</span>
+              <span className="text-4xl font-extrabold text-white">
+                {lastCalibrationResult.skillLevel}
+              </span>
             </div>
           </div>
 
@@ -264,12 +270,17 @@ export function SkillCalibration() {
                 {lastCalibrationResult.feedbackSource === "ai" ? "AI Coaching" : "Local Assessment"}
               </span>
             </div>
-            <p className="text-lg text-slate-100 leading-relaxed">{lastCalibrationResult.feedback}</p>
+            <p className="text-lg text-slate-100 leading-relaxed">
+              {lastCalibrationResult.feedback}
+            </p>
           </div>
 
           <div className="grid grid-cols-3 gap-4 mb-7">
             {lastCalibrationResult.pieceSummaries.map((p) => (
-              <div key={p.songId} className="rounded-2xl bg-slate-950/60 border border-slate-800 p-4">
+              <div
+                key={p.songId}
+                className="rounded-2xl bg-slate-950/60 border border-slate-800 p-4"
+              >
                 <div className="flex items-center justify-between mb-1">
                   <span className="text-xs font-bold text-sky-300">Level {p.difficultyLevel}</span>
                   <span className="text-xs text-slate-400">
@@ -334,7 +345,9 @@ export function SkillCalibration() {
             )}
           </div>
           <h2 className="text-2xl font-bold text-white truncate">
-            {currentMeta ? `${currentMeta.title} — ${currentMeta.composer}` : "Loading Calibration Pieces…"}
+            {currentMeta
+              ? `${currentMeta.title} — ${currentMeta.composer}`
+              : "Loading Calibration Pieces…"}
           </h2>
           {errorMsg && <p className="text-sm text-rose-400 mt-1">{errorMsg}</p>}
         </div>

@@ -1,6 +1,10 @@
 import { describe, expect, test } from "bun:test";
 import { evaluateCalibration } from "../src/shared/calibrationScoring.ts";
-import type { CalibrationPieceAttempt, ExpectedNote, MidiEventRecord } from "../src/shared/types.ts";
+import type {
+  CalibrationPieceAttempt,
+  ExpectedNote,
+  MidiEventRecord,
+} from "../src/shared/types.ts";
 
 function makeExpected(notes: number[], stepMs = 400): ExpectedNote[] {
   return notes.map((midi, i) => ({
@@ -10,7 +14,12 @@ function makeExpected(notes: number[], stepMs = 400): ExpectedNote[] {
   }));
 }
 
-function makePlayed(notes: number[], stepMs = 400, startOffsetMs = 1200, jitterMs = 10): MidiEventRecord[] {
+function makePlayed(
+  notes: number[],
+  stepMs = 400,
+  startOffsetMs = 1200,
+  jitterMs = 10,
+): MidiEventRecord[] {
   return notes.map((midi, i) => ({
     type: "noteOn",
     midi,
@@ -22,9 +31,30 @@ function makePlayed(notes: number[], stepMs = 400, startOffsetMs = 1200, jitterM
 describe("calibrationScoring", () => {
   test("defaults to Level 1 when all pieces are skipped", () => {
     const attempts: CalibrationPieceAttempt[] = [
-      { songId: "l2", title: "Ode to Joy", difficultyLevel: 2, skipped: true, expectedNotes: makeExpected([60, 62, 64]), recordedEvents: [] },
-      { songId: "l5", title: "Prelude", difficultyLevel: 5, skipped: true, expectedNotes: makeExpected([60, 64, 67]), recordedEvents: [] },
-      { songId: "l8", title: "Fur Elise", difficultyLevel: 8, skipped: true, expectedNotes: makeExpected([76, 75, 76]), recordedEvents: [] },
+      {
+        songId: "l2",
+        title: "Ode to Joy",
+        difficultyLevel: 2,
+        skipped: true,
+        expectedNotes: makeExpected([60, 62, 64]),
+        recordedEvents: [],
+      },
+      {
+        songId: "l5",
+        title: "Prelude",
+        difficultyLevel: 5,
+        skipped: true,
+        expectedNotes: makeExpected([60, 64, 67]),
+        recordedEvents: [],
+      },
+      {
+        songId: "l8",
+        title: "Fur Elise",
+        difficultyLevel: 8,
+        skipped: true,
+        expectedNotes: makeExpected([76, 75, 76]),
+        recordedEvents: [],
+      },
     ];
     const result = evaluateCalibration(attempts);
     expect(result.skillLevel).toBe(1);

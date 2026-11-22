@@ -1,5 +1,14 @@
 export type Stage = "calibration" | "library" | "player";
 
+export type Hand = "right" | "left";
+export type PracticeHandMode = "both" | "right" | "left";
+export type PlayerViewMode = "score" | "piano-roll";
+
+export interface MidiDeviceInfo {
+  id: string;
+  name: string;
+}
+
 export interface KeyboardRange {
   minNote: number;
   maxNote: number;
@@ -21,6 +30,15 @@ export interface SongNote {
   duration: number; // seconds
   velocity: number; // 0..1
   track: number;
+  hand: Hand;
+}
+
+export interface SongMeasure {
+  number: number; // 1-based display number
+  time: number; // start time in seconds
+  duration: number; // seconds
+  beats: number; // time signature numerator
+  beatType: number; // time signature denominator
 }
 
 export interface SongMetadata {
@@ -36,6 +54,13 @@ export interface SongMetadata {
   isCalibrationPiece?: boolean;
   calibrationOrder?: number;
   description?: string;
+  workTitle?: string;
+  workNumber?: string;
+  movementNumber?: string;
+  source?: string;
+  license?: string;
+  keySignatureFifths?: number;
+  timeSignature?: { numerator: number; denominator: number };
 }
 
 export interface FittedSong extends SongMetadata {
@@ -47,7 +72,11 @@ export interface FittedSong extends SongMetadata {
 export interface ParsedSong {
   metadata: FittedSong;
   notes: SongNote[];
+  measures: SongMeasure[];
   durationSec: number;
+  bpm: number;
+  keySignatureFifths: number;
+  timeSignature: { numerator: number; denominator: number };
 }
 
 export interface MidiEventRecord {

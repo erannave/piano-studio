@@ -8,14 +8,21 @@
     "start": "NODE_ENV=production bun server.ts",
     "build": "bun run build.ts",
     "seed": "bun run scripts/seed-songs.ts",
+    "seed:sightread": "bun run scripts/import-sightread-catalog.ts",
     "test": "bun test",
-    "typecheck": "bunx tsc --noEmit",
-    "verify:calibration": ".agents/skills/verify-skill-calibration/scripts/check-calibration"
+    "typecheck": "bun check --no-script",
+    "fmt": "bun fmt --no-script src scripts tests server.ts build.ts",
+    "fmt:check": "bun fmt --no-script --check src scripts tests server.ts build.ts",
+    "lint": "bunx oxlint src scripts tests server.ts build.ts",
+    "check": "bun run typecheck && bun run lint && bun run fmt:check",
+    "verify:calibration": ".agents/skills/verify-skill-calibration/scripts/check-calibration",
+    "verify:piano": ".agents/skills/verify-piano/scripts/piano-verify"
   },
   "dependencies": {
     "@tonejs/midi": "^2.0.28",
     "react": "^18.3.1",
     "react-dom": "^18.3.1",
+    "smplr": "^1.2.0",
     "zustand": "^5.0.3"
   },
   "devDependencies": {
@@ -23,6 +30,7 @@
     "@types/react": "^18.3.18",
     "@types/react-dom": "^18.3.5",
     "bun-plugin-tailwind": "^0.1.2",
+    "oxlint": "^1.94.0",
     "tailwindcss": "^4.1.4",
     "typescript": "^5.8.3"
   }

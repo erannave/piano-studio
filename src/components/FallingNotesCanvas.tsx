@@ -1,6 +1,13 @@
-import { useEffect, useMemo, useRef } from "react";
-import { computeKeyLayout } from "../shared/keyboardRange.ts";
-import type { SongNote } from "../shared/types.ts";
+import { useEffect, useMemo, useRef, useState } from "react";
+import { computeKeyLayout, midiToNoteName } from "../shared/keyboardRange.ts";
+import { isPracticedHand } from "../shared/practiceEngine.ts";
+import type { PracticeHandMode, SongNote } from "../shared/types.ts";
+
+interface LoopRange {
+  start: number | null;
+  end: number | null;
+  active: boolean;
+}
 
 interface FallingNotesCanvasProps {
   notes: SongNote[];
@@ -8,6 +15,10 @@ interface FallingNotesCanvasProps {
   minNote: number;
   maxNote: number;
   activeUserNotes: ReadonlySet<number>;
+  waitingNotes?: ReadonlySet<number>;
+  practiceHand?: PracticeHandMode;
+  showNoteNames?: boolean;
+  loopRange?: LoopRange;
   lookAheadSec?: number;
 }
 
@@ -17,10 +28,15 @@ export function FallingNotesCanvas({
   minNote,
   maxNote,
   activeUserNotes,
+  waitingNotes,
+  practiceHand = "both",
+  showNoteNames = false,
+  loopRange,
   lookAheadSec = 3.2,
 }: FallingNotesCanvasProps) {
   const containerRef = useRef<HTMLDivElement | null>(null);
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
+  const [canvasSize, setCanvasSize] = useState({ width: 0, height: 0 });
 
   const keyMap = useMemo(() => {
     const layout = computeKeyLayout(minNote, maxNote);
@@ -37,8 +53,13 @@ export function FallingNotesCanvas({
     const resize = () => {
       const rect = container.getBoundingClientRect();
       const dpr = window.devicePixelRatio || 1;
-      canvas.width = Math.max(1, Math.floor(rect.width * dpr));
-      canvas.height = Math.max(1, Math.floor(rect.height * dpr));
+      const w = Math.max(1, Math.floor(rect.width * dpr));
+      const h = Math.max(1, Math.floor(rect.height * dpr));
+      if (canvas.width !== w || canvas.height !== h) {
+        canvas.width = w;
+        canvas.height = h;
+      }
+      setCanvasSize({ width: w, height: h });
     };
 
     resize();
@@ -101,6 +122,16 @@ export function FallingNotesCanvas({
       }
     }
 
+    // Loop region shading on waterfall
+    if (loopRange && loopRange.start !== null && loopRange.end !== null) {
+      const yBottom = Math.min(height, height - (loopRange.start - currentTimeSec) * pxPerSec);
+      const yTop = Math.max(0, height - (loopRange.end - currentTimeSec) * pxPerSec);
+      if (yBottom > yTop) {
+        ctx.fillStyle = loopRange.active ? "rgba(56, 189, 248, 0.1)" : "rgba(148, 163, 184, 0.06)";
+        ctx.fillRect(0, yTop, width, yBottom - yTop);
+      }
+    }
+
     // Draw falling note bars
     const windowStart = currentTimeSec - 0.15;
     const windowEnd = currentTimeSec + lookAheadSec;
@@ -118,20 +149,27 @@ export function FallingNotesCanvas({
       const yTop = height - (noteEnd - currentTimeSec) * pxPerSec;
       const barH = Math.max(8, yBottom - yTop);
 
+      const practiced = isPracticedHand(note.hand, practiceHand);
       const isActiveNow = note.time <= currentTimeSec && noteEnd >= currentTimeSec;
       const isMatched = isActiveNow && activeUserNotes.has(note.midi);
+      const isWaitingTarget =
+        Boolean(waitingNotes?.has(note.midi)) && Math.abs(note.time - currentTimeSec) < 0.08;
 
       let fill: string;
       let stroke: string;
       if (isMatched) {
         fill = "#34d399";
         stroke = "#a7f3d0";
-      } else if (note.track === 1) {
-        // Left hand track
+      } else if (isWaitingTarget) {
+        fill = "#f59e0b";
+        stroke = "#fef3c7";
+      } else if (!practiced) {
+        fill = "rgba(100, 116, 139, 0.28)";
+        stroke = "rgba(148, 163, 184, 0.35)";
+      } else if (note.hand === "left") {
         fill = isActiveNow ? "#818cf8" : key.isBlack ? "#4f46e5" : "#6366f1";
         stroke = "#c7d2fe";
       } else {
-        // Right hand / primary track
         fill = isActiveNow ? "#38bdf8" : key.isBlack ? "#0284c7" : "#0ea5e9";
         stroke = "#bae6fd";
       }
@@ -142,16 +180,38 @@ export function FallingNotesCanvas({
       ctx.fillStyle = fill;
       ctx.fill();
       ctx.strokeStyle = stroke;
-      ctx.lineWidth = isActiveNow ? 2 : 1;
+      ctx.lineWidth = isActiveNow || isWaitingTarget ? 2 : 1;
       ctx.stroke();
+
+      if (showNoteNames && practiced && barH >= 18 && w >= 18) {
+        ctx.fillStyle = "#0f172a";
+        ctx.font = "bold 10px ui-sans-serif, system-ui, sans-serif";
+        ctx.textAlign = "center";
+        ctx.fillText(midiToNoteName(note.midi), x + w / 2, yBottom - 5);
+        ctx.textAlign = "start";
+      }
     }
 
     // Hit line right above the keyboard
-    ctx.fillStyle = "rgba(56, 189, 248, 0.6)";
+    ctx.fillStyle =
+      waitingNotes && waitingNotes.size > 0
+        ? "rgba(245, 158, 11, 0.85)"
+        : "rgba(56, 189, 248, 0.6)";
     ctx.fillRect(0, height - 3, width, 3);
 
     ctx.restore();
-  }, [notes, currentTimeSec, keyMap, activeUserNotes, lookAheadSec]);
+  }, [
+    notes,
+    currentTimeSec,
+    keyMap,
+    activeUserNotes,
+    waitingNotes,
+    practiceHand,
+    showNoteNames,
+    loopRange,
+    lookAheadSec,
+    canvasSize,
+  ]);
 
   return (
     <div ref={containerRef} className="relative flex-1 w-full min-h-0 overflow-hidden">

@@ -1,14 +1,16 @@
 import { useEffect } from "react";
+import type { MidiDeviceInfo } from "../shared/types.ts";
 import { useAppStore } from "../store/appStore.ts";
 
 /**
- * Connects to the browser's Web MIDI API and feeds noteOn / noteOff events into the global Zustand store.
- * Requires a secure context (localhost or HTTPS).
+ * Connects to the browser's Web MIDI API and feeds noteOn, noteOff, and sustain pedal (CC64)
+ * events into the global Zustand store. Respects `selectedMidiDeviceId` when set.
  */
 export function useMidi(): void {
   const setMidiStatus = useAppStore((s) => s.setMidiStatus);
   const handleMidiNoteOn = useAppStore((s) => s.handleMidiNoteOn);
   const handleMidiNoteOff = useAppStore((s) => s.handleMidiNoteOff);
+  const setSustainPedal = useAppStore((s) => s.setSustainPedal);
   const clearActiveUserNotes = useAppStore((s) => s.clearActiveUserNotes);
 
   useEffect(() => {
@@ -20,31 +22,40 @@ export function useMidi(): void {
     let midiAccess: MIDIAccess | null = null;
     let cancelled = false;
 
-    const handleMidiMessage = (event: MIDIMessageEvent) => {
+    const handleMidiMessage = (deviceId: string) => (event: MIDIMessageEvent) => {
+      const selectedId = useAppStore.getState().selectedMidiDeviceId;
+      if (selectedId && selectedId !== deviceId) return;
+
       const data = event.data;
       if (!data || data.length < 3) return;
       const status = data[0]! & 0xf0;
-      const midi = data[1]!;
-      const velocity = data[2]!;
+      const d1 = data[1]!;
+      const d2 = data[2]!;
 
-      if (status === 0x90 && velocity > 0) {
-        handleMidiNoteOn(midi, velocity);
-      } else if (status === 0x80 || (status === 0x90 && velocity === 0)) {
-        handleMidiNoteOff(midi);
+      if (status === 0x90 && d2 > 0) {
+        handleMidiNoteOn(d1, d2);
+      } else if (status === 0x80 || (status === 0x90 && d2 === 0)) {
+        handleMidiNoteOff(d1);
+      } else if (status === 0xb0 && d1 === 64) {
+        // Sustain pedal (Damper CC64)
+        setSustainPedal(d2 >= 64);
       }
     };
 
     const bindInputs = (access: MIDIAccess) => {
-      const names: string[] = [];
+      const devices: MidiDeviceInfo[] = [];
       for (const input of access.inputs.values()) {
         if (input.state === "connected") {
-          names.push(input.name || input.manufacturer || "MIDI Keyboard");
-          input.onmidimessage = handleMidiMessage;
+          devices.push({
+            id: input.id,
+            name: input.name || input.manufacturer || "MIDI Keyboard",
+          });
+          input.onmidimessage = handleMidiMessage(input.id);
         } else {
           input.onmidimessage = null;
         }
       }
-      setMidiStatus(names.length > 0 ? "connected" : "no-devices", names);
+      setMidiStatus(devices.length > 0 ? "connected" : "no-devices", devices);
     };
 
     navigator
@@ -75,5 +86,5 @@ export function useMidi(): void {
         }
       }
     };
-  }, [setMidiStatus, handleMidiNoteOn, handleMidiNoteOff, clearActiveUserNotes]);
+  }, [setMidiStatus, handleMidiNoteOn, handleMidiNoteOff, setSustainPedal, clearActiveUserNotes]);
 }

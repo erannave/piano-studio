@@ -20,7 +20,10 @@ export function midiToNoteName(midi: number): string {
   return `${NOTE_NAMES[pitchClass]}${octave}`;
 }
 
-export function clampKeyboardRange(minNote: number, maxNote: number): { minNote: number; maxNote: number } {
+export function clampKeyboardRange(
+  minNote: number,
+  maxNote: number,
+): { minNote: number; maxNote: number } {
   const clampedMin = Math.max(PIANO_MIN_NOTE, Math.min(PIANO_MAX_NOTE, Math.round(minNote)));
   const clampedMax = Math.max(PIANO_MIN_NOTE, Math.min(PIANO_MAX_NOTE, Math.round(maxNote)));
   if (clampedMin <= clampedMax) {
@@ -29,7 +32,12 @@ export function clampKeyboardRange(minNote: number, maxNote: number): { minNote:
   return { minNote: clampedMax, maxNote: clampedMin };
 }
 
-function snapToWhiteKeyWithinBounds(note: number, direction: "down" | "up", boundMin: number, boundMax: number): number {
+function snapToWhiteKeyWithinBounds(
+  note: number,
+  direction: "down" | "up",
+  boundMin: number,
+  boundMax: number,
+): number {
   let n = Math.max(boundMin, Math.min(boundMax, note));
   if (!isBlackKey(n)) return n;
 
@@ -50,7 +58,7 @@ function snapToWhiteKeyWithinBounds(note: number, direction: "down" | "up", boun
 export function computeAutoZoomRange(
   songMinNote: number | null,
   songMaxNote: number | null,
-  hardwareRange: Pick<KeyboardRange, "minNote" | "maxNote">
+  hardwareRange: Pick<KeyboardRange, "minNote" | "maxNote">,
 ): { minNote: number; maxNote: number } {
   const hw = clampKeyboardRange(hardwareRange.minNote, hardwareRange.maxNote);
 
@@ -103,7 +111,7 @@ export function computeAutoZoomRange(
  */
 export function fitSongToKeyboardRange(
   song: SongMetadata,
-  hardwareRange: Pick<KeyboardRange, "minNote" | "maxNote">
+  hardwareRange: Pick<KeyboardRange, "minNote" | "maxNote">,
 ): FittedSong | null {
   const hw = clampKeyboardRange(hardwareRange.minNote, hardwareRange.maxNote);
 
