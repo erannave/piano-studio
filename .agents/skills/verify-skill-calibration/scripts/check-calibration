@@ -1,0 +1,69 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+SKILL_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
+SPEC_DIR="$SKILL_DIR/spec"
+SPEC_FILE="$SPEC_DIR/SkillCalibration.tla"
+CFG_FILE="$SPEC_DIR/SkillCalibration.cfg"
+TLC_EXTRA_ARGS=()
+
+for arg in "$@"; do
+  case "$arg" in
+    --all)
+      TLC_EXTRA_ARGS+=("-continue")
+      ;;
+    *)
+      CFG_FILE="$arg"
+      ;;
+  esac
+done
+
+TLA_VERSION="1.7.4"
+TLA_URL="https://github.com/tlaplus/tlaplus/releases/download/v${TLA_VERSION}/tla2tools.jar"
+CACHE_JAR="${HOME}/.cache/tla2tools/tla2tools-${TLA_VERSION}.jar"
+
+find_jar() {
+  if [[ -n "${TLA2TOOLS_JAR:-}" && -f "${TLA2TOOLS_JAR}" ]]; then
+    echo "${TLA2TOOLS_JAR}"
+    return 0
+  fi
+  if [[ -f "${CACHE_JAR}" ]]; then
+    echo "${CACHE_JAR}"
+    return 0
+  fi
+  local candidate
+  for candidate in \
+    "${HOME}/.cache/claude-tmp/claude-$(id -u)/tla174/tla2tools.jar" \
+    "/usr/share/java/tla2tools.jar" \
+    "/opt/tlaplus/tla2tools.jar"; do
+    if [[ -f "${candidate}" ]]; then
+      echo "${candidate}"
+      return 0
+    fi
+  done
+  return 1
+}
+
+if ! command -v java >/dev/null 2>&1; then
+  echo "Error: java is required to run TLC (install OpenJDK 17+)." >&2
+  exit 2
+fi
+
+JAR_PATH=""
+if ! JAR_PATH="$(find_jar)"; then
+  echo "Downloading tla2tools.jar v${TLA_VERSION} to ${CACHE_JAR}..." >&2
+  mkdir -p "$(dirname "${CACHE_JAR}")"
+  curl -fsSL "${TLA_URL}" -o "${CACHE_JAR}"
+  JAR_PATH="${CACHE_JAR}"
+fi
+
+TMP_META="$(mktemp -d)"
+trap 'rm -rf "$TMP_META"' EXIT
+
+exec java -XX:+UseParallelGC -cp "${JAR_PATH}" tlc2.TLC \
+  -workers 1 \
+  -cleanup \
+  -metadir "${TMP_META}" \
+  "${TLC_EXTRA_ARGS[@]}" \
+  -config "${CFG_FILE}" \
+  "${SPEC_FILE}"

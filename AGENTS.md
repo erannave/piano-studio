@@ -15,3 +15,7 @@ Default five-role vocabulary (`needs-triage`, `needs-info`, `ready-for-agent`, `
 ### Domain docs
 
 Single-context: one `GLOSSARY.md` and `docs/adr/` at the repo root. See `docs/agents/domain.md`.
+
+### Formal verification
+
+When editing Skill Calibration or Skill Level persistence (`src/components/SkillCalibration.tsx`, `src/store/appStore.ts`, `src/components/Layout.tsx`, `server.ts`, `src/server/db.ts`), run `bun run verify:calibration` and follow the `verify-skill-calibration` skill in `.agents/skills/verify-skill-calibration/SKILL.md`.

@@ -38,9 +38,17 @@ export class PianoDatabase {
         keyboard_max_note INTEGER NOT NULL DEFAULT ${PIANO_MAX_NOTE},
         keyboard_calibrated INTEGER NOT NULL DEFAULT 0,
         calibrated_at TEXT,
-        updated_at TEXT NOT NULL
+        updated_at TEXT NOT NULL,
+        level_version INTEGER NOT NULL DEFAULT 0
       );
     `);
+
+    const cols = this.db
+      .query<{ name: string }, []>(`PRAGMA table_info(learner_profile)`)
+      .all();
+    if (!cols.some((c) => c.name === "level_version")) {
+      this.db.run(`ALTER TABLE learner_profile ADD COLUMN level_version INTEGER NOT NULL DEFAULT 0`);
+    }
 
     this.db.run(`
       CREATE TABLE IF NOT EXISTS calibration_history (
@@ -95,6 +103,13 @@ export class PianoDatabase {
     };
   }
 
+  getLevelVersion(): number {
+    const row = this.db
+      .query<{ level_version: number }, []>(`SELECT level_version FROM learner_profile WHERE id = 1`)
+      .get();
+    return row?.level_version ?? 0;
+  }
+
   updateSkillLevel(skillLevel: number, feedback?: string | null, feedbackSource?: "ai" | "local" | null): LearnerProfile {
     const clamped = Math.max(1, Math.min(10, Math.round(skillLevel)));
     const now = new Date().toISOString();
@@ -102,14 +117,14 @@ export class PianoDatabase {
     if (feedback !== undefined) {
       this.db.run(
         `UPDATE learner_profile
-         SET skill_level = ?, feedback = ?, feedback_source = ?, updated_at = ?
+         SET skill_level = ?, feedback = ?, feedback_source = ?, updated_at = ?, level_version = level_version + 1
          WHERE id = 1`,
         [clamped, feedback, feedbackSource ?? "local", now]
       );
     } else {
       this.db.run(
         `UPDATE learner_profile
-         SET skill_level = ?, updated_at = ?
+         SET skill_level = ?, updated_at = ?, level_version = level_version + 1
          WHERE id = 1`,
         [clamped, now]
       );
@@ -134,7 +149,7 @@ export class PianoDatabase {
     const now = result.calibratedAt || new Date().toISOString();
     this.db.run(
       `UPDATE learner_profile
-       SET skill_level = ?, feedback = ?, feedback_source = ?, calibrated_at = ?, updated_at = ?
+       SET skill_level = ?, feedback = ?, feedback_source = ?, calibrated_at = ?, updated_at = ?, level_version = level_version + 1
        WHERE id = 1`,
       [result.skillLevel, result.feedback, result.feedbackSource, now, now]
     );
@@ -152,6 +167,37 @@ export class PianoDatabase {
     );
 
     return this.getProfile();
+  }
+
+  saveCalibrationResultIfCurrent(
+    result: CalibrationResult,
+    expectedLevelVersion: number
+  ): { applied: boolean; profile: LearnerProfile } {
+    const now = result.calibratedAt || new Date().toISOString();
+    const update = this.db.run(
+      `UPDATE learner_profile
+       SET skill_level = ?, feedback = ?, feedback_source = ?, calibrated_at = ?, updated_at = ?, level_version = level_version + 1
+       WHERE id = 1 AND level_version = ?`,
+      [result.skillLevel, result.feedback, result.feedbackSource, now, now, expectedLevelVersion]
+    );
+
+    if (update.changes === 0) {
+      return { applied: false, profile: this.getProfile() };
+    }
+
+    this.db.run(
+      `INSERT INTO calibration_history (skill_level, feedback, feedback_source, summaries_json, created_at)
+       VALUES (?, ?, ?, ?, ?)`,
+      [
+        result.skillLevel,
+        result.feedback,
+        result.feedbackSource,
+        JSON.stringify(result.pieceSummaries),
+        now,
+      ]
+    );
+
+    return { applied: true, profile: this.getProfile() };
   }
 
   close(): void {

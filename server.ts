@@ -77,8 +77,13 @@ const apiRoutes = {
           return json({ error: "attempts must be a non-empty array" }, 400);
         }
 
+        const expectedLevelVersion = db.getLevelVersion();
         const { skillLevel, pieceSummaries, localFeedback } = evaluateCalibration(body.attempts);
         const coaching = await generateCoachingFeedback(skillLevel, pieceSummaries, localFeedback);
+
+        if (req.signal.aborted) {
+          return json({ error: "Calibration request aborted", superseded: true }, 409);
+        }
 
         const result: CalibrationResult = {
           skillLevel,
@@ -88,8 +93,18 @@ const apiRoutes = {
           calibratedAt: new Date().toISOString(),
         };
 
-        const profile = db.saveCalibrationResult(result);
-        return json({ result, profile });
+        const saved = db.saveCalibrationResultIfCurrent(result, expectedLevelVersion);
+        if (!saved.applied) {
+          return json(
+            {
+              error: "Calibration superseded by a newer Skill Level update",
+              superseded: true,
+              profile: saved.profile,
+            },
+            409
+          );
+        }
+        return json({ result, profile: saved.profile });
       } catch (err) {
         console.error("Calibration evaluation error:", err);
         return json({ error: "Failed to evaluate calibration" }, 500);

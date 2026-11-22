@@ -18,6 +18,16 @@ export type CalibrationSubStep = "keyboard-range" | "skill";
 type MidiListener = (event: MidiEventRecord) => void;
 const midiListeners = new Set<MidiListener>();
 
+let levelWriteSeq = 0;
+let calibrationAbortController: AbortController | null = null;
+
+export class CalibrationSupersededError extends Error {
+  constructor() {
+    super("Calibration superseded by a newer Skill Level update");
+    this.name = "CalibrationSupersededError";
+  }
+}
+
 export function subscribeMidiEvents(listener: MidiListener): () => void {
   midiListeners.add(listener);
   return () => {
@@ -212,6 +222,10 @@ export const useAppStore = create<AppState>((set, get) => ({
   },
 
   setManualSkillLevel: async (level) => {
+    const seq = ++levelWriteSeq;
+    calibrationAbortController?.abort();
+    calibrationAbortController = null;
+
     const res = await fetch("/api/profile/level", {
       method: "PATCH",
       headers: { "content-type": "application/json" },
@@ -219,22 +233,47 @@ export const useAppStore = create<AppState>((set, get) => ({
     });
     if (!res.ok) throw new Error("Failed to update skill level");
     const profile = (await res.json()) as LearnerProfile;
-    set({ profile });
+    if (seq === levelWriteSeq) {
+      set({ profile });
+    }
   },
 
   submitCalibration: async (attempts) => {
-    const res = await fetch("/api/calibration/evaluate", {
-      method: "POST",
-      headers: { "content-type": "application/json" },
-      body: JSON.stringify({ attempts }),
-    });
-    if (!res.ok) throw new Error("Failed to evaluate calibration");
-    const data = (await res.json()) as { result: CalibrationResult; profile: LearnerProfile };
-    set({
-      profile: data.profile,
-      lastCalibrationResult: data.result,
-    });
-    return data.result;
+    const seq = ++levelWriteSeq;
+    calibrationAbortController?.abort();
+    const controller = new AbortController();
+    calibrationAbortController = controller;
+
+    try {
+      const res = await fetch("/api/calibration/evaluate", {
+        method: "POST",
+        headers: { "content-type": "application/json" },
+        body: JSON.stringify({ attempts }),
+        signal: controller.signal,
+      });
+      if (controller.signal.aborted || seq !== levelWriteSeq || res.status === 409) {
+        throw new CalibrationSupersededError();
+      }
+      if (!res.ok) throw new Error("Failed to evaluate calibration");
+      const data = (await res.json()) as { result: CalibrationResult; profile: LearnerProfile };
+      if (controller.signal.aborted || seq !== levelWriteSeq) {
+        throw new CalibrationSupersededError();
+      }
+      set({
+        profile: data.profile,
+        lastCalibrationResult: data.result,
+      });
+      return data.result;
+    } catch (err) {
+      if (controller.signal.aborted || seq !== levelWriteSeq) {
+        throw new CalibrationSupersededError();
+      }
+      throw err;
+    } finally {
+      if (calibrationAbortController === controller) {
+        calibrationAbortController = null;
+      }
+    }
   },
 
   selectSong: async (song) => {

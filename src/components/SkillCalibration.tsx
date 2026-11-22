@@ -8,7 +8,7 @@ import type {
   MidiEventRecord,
   ParsedSong,
 } from "../shared/types.ts";
-import { subscribeMidiEvents, useAppStore } from "../store/appStore.ts";
+import { CalibrationSupersededError, subscribeMidiEvents, useAppStore } from "../store/appStore.ts";
 import { FallingNotesCanvas } from "./FallingNotesCanvas.tsx";
 import { PianoKeyboard } from "./PianoKeyboard.tsx";
 
@@ -109,14 +109,16 @@ export function SkillCalibration() {
           durationMs: Math.round(n.duration * 1000),
         }));
 
-      attemptsRef.current.push({
+      const nextAttempts = attemptsRef.current.slice(0, pieceIdx);
+      nextAttempts[pieceIdx] = {
         songId: currentMeta.id,
         title: currentMeta.title,
         difficultyLevel: currentMeta.difficultyLevel,
         skipped,
         expectedNotes,
         recordedEvents: skipped ? [] : [...recordedEventsRef.current],
-      });
+      };
+      attemptsRef.current = nextAttempts;
 
       recordedEventsRef.current = [];
       setRecordedCount(0);
@@ -134,8 +136,11 @@ export function SkillCalibration() {
           await submitCalibration(attemptsRef.current);
           setPhase("results");
         } catch (err) {
-          setErrorMsg(err instanceof Error ? err.message : "Failed to submit calibration");
-          setPhase("ready");
+          attemptsRef.current = attemptsRef.current.slice(0, pieceIdx);
+          if (!(err instanceof CalibrationSupersededError)) {
+            setErrorMsg(err instanceof Error ? err.message : "Failed to submit calibration");
+            setPhase("ready");
+          }
         } finally {
           finishingRef.current = false;
         }
